@@ -10,9 +10,28 @@ Frase principal:
 
 O Conecta Kids deve ter linguagem simples, alegre, infantil, educativa, segura e acolhedora.
 
-Use termos como jornada, aventuras, missões, desafios, estrelinhas, conquistas, turminha, Tutor Digital, Meu Avatar, Minha Família e Meus Guias.
+Use termos como jornada, aventuras, missões, desafios, estrelinhas, conquistas, turminha, Kids Digital, Meu Avatar, Minha Família e Meus Guias.
 
 Evite linguagem técnica demais, visual corporativo, telas frias, excesso de texto, layout administrativo comum e cores escuras demais.
+
+## Nomes visuais das áreas
+
+Os nomes técnicos podem continuar claros no código, mas a interface deve usar nomes infantis:
+
+| Área técnica | Nome visual |
+| --- | --- |
+| Dashboard | Minha Jornada |
+| Trilhas | Aventuras Digitais |
+| Aulas | Missões |
+| Exercícios | Desafios |
+| Ranking | Hall das Estrelinhas |
+| Chat | Kids Digital |
+| Turmas | Minha Turminha |
+| Perfil | Meu Avatar |
+| Responsáveis | Minha Família |
+| Professores | Meus Guias |
+| Privacidade | Segurança e Privacidade |
+| Termos | Combinados de Uso |
 
 ## Stack
 
@@ -58,9 +77,9 @@ Regras importantes:
 3. Rode o SQL de `supabase/schema.sql` no SQL Editor do Supabase.
 4. Configure Auth com magic link ou outro provedor permitido para o projeto.
 
-## Tutor digital
+## Kids Digital
 
-O tutor fica em `POST /api/chat`. O frontend envia mensagens para essa rota, e a rota chama a OpenAI no servidor usando `OPENAI_API_KEY`.
+O Kids Digital fica em `POST /api/chat`. O frontend envia mensagens para essa rota, e a rota chama a OpenAI no servidor usando `OPENAI_API_KEY`.
 
 ## Deploy na Vercel
 

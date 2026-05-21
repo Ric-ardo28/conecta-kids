@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { AuthPanel } from "@/components/AuthPanel";
 import { TutorChat } from "@/components/TutorChat";
+import { productAreas } from "@/lib/product-areas";
 
 const lessons = [
   {
@@ -38,7 +39,7 @@ const lessons = [
     badge: "Missão",
   },
   {
-    title: "Senha campea",
+    title: "Senha campeã",
     description: "Senhas fortes, segredos digitais e cuidado com dados pessoais.",
     icon: KeyRound,
     color: "bg-amber-100 text-amber-700",
@@ -60,7 +61,19 @@ const achievements = [
   ["🏅", "Clique Consciente"],
 ];
 
-const guides = ["Meu Avatar", "Minha Família", "Meus Guias"];
+const areaHighlights = [
+  productAreas.dashboard,
+  productAreas.profile,
+  productAreas.guardians,
+  productAreas.teachers,
+  productAreas.classes,
+];
+
+const supportAreas = [
+  productAreas.privacy,
+  productAreas.terms,
+  productAreas.ranking,
+];
 
 export default function Home() {
   return (
@@ -84,23 +97,23 @@ export default function Home() {
 
           <div className="flex flex-wrap gap-3">
             <a
-              href="#aulas"
+              href="#aventuras"
               className="inline-flex items-center gap-2 rounded-2xl bg-sky-500 px-5 py-4 text-base font-black text-white transition hover:-translate-y-0.5 hover:bg-sky-600"
             >
               <BookOpen aria-hidden="true" size={20} />
-              Começar jornada
+              {productAreas.dashboard}
             </a>
             <a
-              href="#tutor"
+              href="#kids-digital"
               className="inline-flex items-center gap-2 rounded-2xl bg-yellow-300 px-5 py-4 text-base font-black text-slate-950 transition hover:-translate-y-0.5 hover:bg-yellow-200"
             >
               <Brain aria-hidden="true" size={20} />
-              Tutor Digital
+              {productAreas.chat}
             </a>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {guides.map((guide) => (
+            {areaHighlights.map((guide) => (
               <span
                 key={guide}
                 className="rounded-full bg-white/82 px-4 py-2 text-sm font-black text-slate-700 shadow-sm"
@@ -119,7 +132,7 @@ export default function Home() {
               </div>
               <div className="mt-5 rounded-3xl bg-white p-4 text-center">
                 <p className="text-sm font-black uppercase tracking-[0.18em] text-pink-600">
-                  Meu Avatar
+                  {productAreas.profile}
                 </p>
                 <p className="text-3xl font-black text-slate-950">Bit</p>
                 <p className="mt-1 font-bold text-slate-600">
@@ -129,7 +142,7 @@ export default function Home() {
             </div>
           </div>
           <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-3xl bg-emerald-500 px-5 py-4 font-black text-white kid-shadow md:bottom-10 md:-left-16 md:translate-x-0">
-            🏆 4 missões hoje
+            🏆 4 {productAreas.lessons.toLowerCase()} hoje
           </div>
           <div className="absolute right-4 top-0 rounded-3xl bg-pink-500 px-5 py-4 font-black text-white kid-shadow">
             ✨ +120 pontos
@@ -137,15 +150,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="aulas" className="bg-white/72 px-5 py-14 md:px-8">
+      <section id="aventuras" className="bg-white/72 px-5 py-14 md:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.18em] text-pink-600">
-                Jornada de aventuras
+                {productAreas.tracks}
               </p>
               <h2 className="text-4xl font-black text-slate-950">
-                Missões curtas, coloridas e práticas
+                {productAreas.lessons} curtas, coloridas e práticas
               </h2>
             </div>
             <div className="inline-flex max-w-max items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-black text-white">
@@ -189,10 +202,10 @@ export default function Home() {
               </div>
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.16em] text-amber-900">
-                  Missões
+                  {productAreas.lessons}
                 </p>
                 <h2 className="text-3xl font-black text-slate-950">
-                  Checklist do dia
+                  {productAreas.exercises} do dia
                 </h2>
               </div>
             </div>
@@ -218,7 +231,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-sm font-black uppercase tracking-[0.16em] text-pink-600">
-                    Minhas conquistas
+                    {productAreas.ranking}
                   </p>
                   <h2 className="text-2xl font-black text-slate-900">
                     Medalhas e estrelinhas
@@ -241,12 +254,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="tutor" className="bg-sky-50 px-5 py-14 md:px-8">
+      <section id="kids-digital" className="bg-sky-50 px-5 py-14 md:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-700">
               <Star aria-hidden="true" className="text-yellow-500" size={18} />
-              Tutor Digital
+              {productAreas.chat}
             </div>
             <h2 className="text-4xl font-black text-slate-950">
               Pergunte, pratique e avance na jornada
@@ -257,6 +270,19 @@ export default function Home() {
             </p>
           </div>
           <TutorChat />
+        </div>
+      </section>
+
+      <section className="px-5 py-10 md:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap gap-3">
+          {supportAreas.map((area) => (
+            <div
+              key={area}
+              className="rounded-full border-2 border-white bg-white/86 px-4 py-2 text-sm font-black text-slate-700 shadow-sm"
+            >
+              {area}
+            </div>
+          ))}
         </div>
       </section>
     </main>

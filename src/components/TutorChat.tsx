@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { Bot, Loader2, Send, ShieldAlert, Stars } from "lucide-react";
+import { productAreas } from "@/lib/product-areas";
 
 type Message = {
   role: "user" | "assistant";
@@ -19,7 +20,7 @@ export function TutorChat() {
     {
       role: "assistant",
       content:
-        "Oi! Eu sou o Tutor Digital da turminha Conecta. Vamos aprender tecnologia com segurança?",
+        "Oi! Eu sou o Kids Digital da turminha Conecta. Vamos aprender tecnologia com segurança?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -59,7 +60,7 @@ export function TutorChat() {
           content:
             data.answer ??
             data.error ??
-            "Nao consegui responder agora. Tente de novo em instantes.",
+            "Não consegui responder agora. Tente de novo em instantes.",
         },
       ]);
     } catch {
@@ -67,7 +68,7 @@ export function TutorChat() {
         ...nextMessages,
         {
           role: "assistant",
-          content: "A conexao falhou. Peca ajuda a um adulto e tente novamente.",
+          content: "A conexão falhou. Peça ajuda a um adulto e tente novamente.",
         },
       ]);
     } finally {
@@ -89,9 +90,9 @@ export function TutorChat() {
           </div>
           <div>
             <p className="text-sm font-black uppercase tracking-[0.16em] text-sky-600">
-              Tutor Digital
+              {productAreas.chat}
             </p>
-            <h2 className="text-2xl font-black">Turminha Conecta</h2>
+            <h2 className="text-2xl font-black">{productAreas.classes}</h2>
           </div>
         </div>
         <Stars aria-hidden="true" className="text-yellow-300 wiggle" />
@@ -150,7 +151,7 @@ export function TutorChat() {
 
       <p className="mt-4 flex items-start gap-2 rounded-2xl bg-emerald-50 p-3 text-xs font-bold leading-relaxed text-emerald-800">
         <ShieldAlert aria-hidden="true" className="mt-0.5 shrink-0" size={16} />
-        O tutor não pede senhas nem dados pessoais. Se algo parecer estranho,
+        O Kids Digital não pede senhas nem dados pessoais. Se algo parecer estranho,
         chame um adulto de confiança.
       </p>
     </section>

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { LogIn, ShieldCheck, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { productAreas } from "@/lib/product-areas";
 
 export function AuthPanel() {
   const hasSupabaseConfig = Boolean(
@@ -27,7 +28,7 @@ export function AuthPanel() {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user.email) {
         setStatus(
-            `Olá, ${data.session.user.email}! Sua jornada está pronta.`,
+          `Olá, ${data.session.user.email}! Sua jornada está pronta.`,
         );
       }
     });
@@ -41,7 +42,7 @@ export function AuthPanel() {
     }
 
     setIsLoading(true);
-      setStatus("Enviando link magico para a familia...");
+    setStatus("Enviando link mágico para a família...");
 
     try {
       const supabase = createSupabaseBrowserClient();
@@ -54,7 +55,7 @@ export function AuthPanel() {
 
       setStatus(
         error
-          ? "Nao consegui enviar agora. Confira o e-mail e tente novamente."
+          ? "Não consegui enviar agora. Confira o e-mail e tente novamente."
           : "Link enviado! Abra o e-mail com um adulto por perto.",
       );
     } finally {
@@ -70,7 +71,7 @@ export function AuthPanel() {
         </div>
         <div>
           <p className="text-sm font-black uppercase tracking-[0.16em] text-emerald-700">
-            Minha Família
+            {productAreas.guardians}
           </p>
           <h2 className="text-2xl font-black text-slate-900">
             Entrar com cuidado
@@ -96,7 +97,7 @@ export function AuthPanel() {
           className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-base font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300"
         >
           <LogIn aria-hidden="true" size={20} />
-          {isLoading ? "Enviando..." : "Receber link magico"}
+          {isLoading ? "Enviando..." : "Receber link mágico"}
         </button>
       </form>
 

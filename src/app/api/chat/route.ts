@@ -6,7 +6,7 @@ type ChatMessage = {
 };
 
 const systemPrompt = `
-Voce e o Tutor Digital do Conecta Kids, um tutor infantil brasileiro.
+Voce e o Kids Digital do Conecta Kids, um tutor infantil brasileiro.
 Explique tecnologia para criancas com linguagem simples, alegre, segura, educativa e acolhedora.
 Use palavras como jornada, aventuras, missoes, desafios, estrelinhas, conquistas e turminha quando fizer sentido.
 Sempre priorize seguranca digital, privacidade, respeito e pedir ajuda a um adulto.
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     if (messages.length === 0) {
       return Response.json(
-        { error: "Envie pelo menos uma mensagem para o tutor." },
+        { error: "Envie pelo menos uma mensagem para o Kids Digital." },
         { status: 400 },
       );
     }
@@ -65,10 +65,10 @@ export async function POST(request: Request) {
 
     return Response.json({ answer });
   } catch (error) {
-    console.error("Erro no tutor digital", error);
+    console.error("Erro no Kids Digital", error);
 
     return Response.json(
-      { error: "O tutor digital ficou indisponivel por alguns instantes." },
+      { error: "O Kids Digital ficou indisponivel por alguns instantes." },
       { status: 500 },
     );
   }
