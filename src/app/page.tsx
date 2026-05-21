@@ -97,14 +97,14 @@ export default function Home() {
 
           <div className="flex flex-wrap gap-3">
             <a
-              href="#aventuras"
+              href="/dashboard"
               className="inline-flex items-center gap-2 rounded-2xl bg-sky-500 px-5 py-4 text-base font-black text-white transition hover:-translate-y-0.5 hover:bg-sky-600"
             >
               <BookOpen aria-hidden="true" size={20} />
               {productAreas.dashboard}
             </a>
             <a
-              href="#kids-digital"
+              href="/chat"
               className="inline-flex items-center gap-2 rounded-2xl bg-yellow-300 px-5 py-4 text-base font-black text-slate-950 transition hover:-translate-y-0.5 hover:bg-yellow-200"
             >
               <Brain aria-hidden="true" size={20} />

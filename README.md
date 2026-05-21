@@ -33,6 +33,29 @@ Os nomes técnicos podem continuar claros no código, mas a interface deve usar 
 | Privacidade | Segurança e Privacidade |
 | Termos | Combinados de Uso |
 
+## Estrutura de páginas
+
+Páginas públicas:
+
+- `/`: Home
+- `/login`: Login
+- `/cadastro`: Cadastro
+- `/privacidade`: Segurança e Privacidade
+- `/termos`: Combinados de Uso
+
+Páginas logadas:
+
+- `/dashboard`: Minha Jornada
+- `/trilhas`: Aventuras Digitais
+- `/aulas`: Missões
+- `/exercicios`: Desafios
+- `/ranking`: Hall das Estrelinhas
+- `/chat`: Kids Digital
+- `/turmas`: Minha Turminha
+- `/perfil`: Meu Avatar
+- `/responsaveis`: Minha Família
+- `/professores`: Meus Guias
+
 ## Stack
 
 - Next.js com App Router
