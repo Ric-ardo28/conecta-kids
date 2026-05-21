@@ -56,6 +56,17 @@ Páginas logadas:
 - `/responsaveis`: Minha Família
 - `/professores`: Meus Guias
 
+## Home
+
+A Home (`/`) apresenta a proposta do Conecta Kids com:
+
+- Header com logo, Entrar e Começar agora.
+- Hero educativo com ilustração infantil.
+- Seções para crianças, responsáveis e professores.
+- Blocos de internet segura, aprender brincando, conquistas e estrelinhas.
+- CTA final para cadastro.
+- Footer com links de privacidade e termos.
+
 ## Stack
 
 - Next.js com App Router
