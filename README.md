@@ -1,6 +1,18 @@
 # Conecta Kids
 
-Plataforma de inclusao digital infantil para ensinar criancas, responsaveis e professores a usar tecnologia com seguranca, clareza e diversao.
+Plataforma de inclusão digital infantil para ensinar crianças, responsáveis e professores a usar tecnologia de forma segura, correta, educativa e divertida.
+
+Frase principal:
+
+> Aprenda a usar celular, computador e internet com segurança, diversão e responsabilidade.
+
+## Identidade do produto
+
+O Conecta Kids deve ter linguagem simples, alegre, infantil, educativa, segura e acolhedora.
+
+Use termos como jornada, aventuras, missões, desafios, estrelinhas, conquistas, turminha, Tutor Digital, Meu Avatar, Minha Família e Meus Guias.
+
+Evite linguagem técnica demais, visual corporativo, telas frias, excesso de texto, layout administrativo comum e cores escuras demais.
 
 ## Stack
 

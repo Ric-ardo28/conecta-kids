@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Conecta Kids",
   description:
-    "Plataforma de inclusao digital infantil para aprender tecnologia com seguranca.",
+    "Aprenda a usar celular, computador e internet com segurança, diversão e responsabilidade.",
 };
 
 export default function RootLayout({

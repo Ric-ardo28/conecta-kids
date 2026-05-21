@@ -12,8 +12,8 @@ export function AuthPanel() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(
     hasSupabaseConfig
-      ? "Entre para guardar pontos e medalhas."
-      : "Configure as variaveis do Supabase para ativar o login.",
+      ? "Entre para guardar estrelinhas e conquistas."
+      : "Peça para um adulto configurar a entrada segura.",
   );
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +27,7 @@ export function AuthPanel() {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user.email) {
         setStatus(
-          `Ola, ${data.session.user.email}! Seu diario digital esta pronto.`,
+            `Olá, ${data.session.user.email}! Sua jornada está pronta.`,
         );
       }
     });
@@ -41,7 +41,7 @@ export function AuthPanel() {
     }
 
     setIsLoading(true);
-    setStatus("Enviando link magico...");
+      setStatus("Enviando link magico para a familia...");
 
     try {
       const supabase = createSupabaseBrowserClient();
@@ -55,7 +55,7 @@ export function AuthPanel() {
       setStatus(
         error
           ? "Nao consegui enviar agora. Confira o e-mail e tente novamente."
-          : "Link enviado! Abra seu e-mail com um adulto por perto.",
+          : "Link enviado! Abra o e-mail com um adulto por perto.",
       );
     } finally {
       setIsLoading(false);
@@ -70,15 +70,17 @@ export function AuthPanel() {
         </div>
         <div>
           <p className="text-sm font-black uppercase tracking-[0.16em] text-emerald-700">
-            Supabase Auth
+            Minha Família
           </p>
-          <h2 className="text-2xl font-black text-slate-900">Entrada segura</h2>
+          <h2 className="text-2xl font-black text-slate-900">
+            Entrar com cuidado
+          </h2>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <label className="block text-sm font-bold text-slate-700" htmlFor="email">
-          E-mail do responsavel ou professor
+          E-mail do responsável ou professor
         </label>
         <input
           id="email"

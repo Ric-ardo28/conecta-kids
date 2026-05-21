@@ -10,8 +10,8 @@ type Message = {
 
 const starterPrompts = [
   "Como criar uma senha forte?",
-  "O que faco se um estranho falar comigo online?",
-  "Como pesquisar melhor na internet?",
+  "O que faço se um estranho falar comigo online?",
+  "Qual desafio posso fazer hoje?",
 ];
 
 export function TutorChat() {
@@ -19,7 +19,7 @@ export function TutorChat() {
     {
       role: "assistant",
       content:
-        "Oi! Eu sou o Tutor Conecta. Posso te ajudar a aprender tecnologia com seguranca.",
+        "Oi! Eu sou o Tutor Digital da turminha Conecta. Vamos aprender tecnologia com segurança?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -81,30 +81,30 @@ export function TutorChat() {
   }
 
   return (
-    <section className="kid-shadow rounded-[2rem] border-4 border-white bg-slate-950 p-5 text-white">
+    <section className="kid-shadow rounded-[2rem] border-4 border-white bg-white p-5 text-slate-900">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-sky-400 p-3 text-slate-950">
+          <div className="rounded-2xl bg-sky-100 p-3 text-sky-700">
             <Bot aria-hidden="true" />
           </div>
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.16em] text-sky-200">
-              IA segura
+            <p className="text-sm font-black uppercase tracking-[0.16em] text-sky-600">
+              Tutor Digital
             </p>
-            <h2 className="text-2xl font-black">Tutor Conecta</h2>
+            <h2 className="text-2xl font-black">Turminha Conecta</h2>
           </div>
         </div>
         <Stars aria-hidden="true" className="text-yellow-300 wiggle" />
       </div>
 
-      <div className="mb-4 space-y-3 rounded-3xl bg-white/8 p-3">
+      <div className="mb-4 space-y-3 rounded-3xl bg-sky-50 p-3">
         {visibleMessages.map((message, index) => (
           <div
             key={`${message.role}-${index}-${message.content.slice(0, 12)}`}
             className={`pop-in max-w-[88%] rounded-3xl px-4 py-3 text-sm font-bold leading-relaxed ${
               message.role === "user"
                 ? "ml-auto bg-yellow-300 text-slate-950"
-                : "bg-white text-slate-900"
+                : "bg-white text-slate-900 shadow-sm"
             }`}
           >
             {message.content}
@@ -124,7 +124,7 @@ export function TutorChat() {
             key={prompt}
             type="button"
             onClick={() => void sendMessage(prompt)}
-            className="rounded-full bg-white/12 px-3 py-2 text-xs font-black text-white transition hover:bg-white/22"
+            className="rounded-full bg-pink-100 px-3 py-2 text-xs font-black text-pink-700 transition hover:bg-pink-200"
           >
             {prompt}
           </button>
@@ -136,22 +136,22 @@ export function TutorChat() {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Digite sua pergunta..."
-          className="min-w-0 flex-1 rounded-2xl border-2 border-white/15 bg-white px-4 py-3 text-slate-950 outline-none transition focus:border-yellow-300"
+          className="min-w-0 flex-1 rounded-2xl border-2 border-sky-100 bg-sky-50 px-4 py-3 text-slate-950 outline-none transition focus:border-yellow-300 focus:bg-white"
         />
         <button
           type="submit"
           disabled={!canSend}
-          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-pink-500 text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:bg-slate-600"
+          className="grid size-12 shrink-0 place-items-center rounded-2xl bg-pink-500 text-white transition hover:bg-pink-600 disabled:cursor-not-allowed disabled:bg-slate-300"
           aria-label="Enviar pergunta"
         >
           <Send aria-hidden="true" size={21} />
         </button>
       </form>
 
-      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-sky-400/14 p-3 text-xs font-bold leading-relaxed text-sky-100">
+      <p className="mt-4 flex items-start gap-2 rounded-2xl bg-emerald-50 p-3 text-xs font-bold leading-relaxed text-emerald-800">
         <ShieldAlert aria-hidden="true" className="mt-0.5 shrink-0" size={16} />
-        O tutor nao pede senhas nem dados pessoais. Se algo parecer estranho,
-        chame um adulto de confianca.
+        O tutor não pede senhas nem dados pessoais. Se algo parecer estranho,
+        chame um adulto de confiança.
       </p>
     </section>
   );

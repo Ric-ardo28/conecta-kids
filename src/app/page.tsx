@@ -17,32 +17,32 @@ import { TutorChat } from "@/components/TutorChat";
 
 const lessons = [
   {
-    title: "Primeiros cliques",
-    description: "Mouse, teclado, tela, arquivos e combinados para cuidar do computador.",
+    title: "Aventura dos cliques",
+    description: "Mouse, teclado, tela e combinados para cuidar do computador.",
     icon: Laptop,
     color: "bg-sky-100 text-sky-700",
-    badge: "Computador",
+    badge: "Meu Guia",
   },
   {
     title: "Celular esperto",
-    description: "Aplicativos, notificacoes, fotos, chamadas e tempo de tela com equilibrio.",
+    description: "Aplicativos, notificações, fotos e tempo de tela com equilíbrio.",
     icon: Smartphone,
     color: "bg-emerald-100 text-emerald-700",
-    badge: "Celular",
+    badge: "Desafio",
   },
   {
     title: "Internet segura",
-    description: "Links perigosos, golpes, estranhos online e quando pedir ajuda.",
+    description: "Links perigosos, golpes, estranhos online e ajuda de adultos.",
     icon: Globe,
     color: "bg-pink-100 text-pink-700",
-    badge: "Seguranca",
+    badge: "Missão",
   },
   {
     title: "Senha campea",
-    description: "Como criar senhas fortes e por que nunca compartilhar segredos digitais.",
+    description: "Senhas fortes, segredos digitais e cuidado com dados pessoais.",
     icon: KeyRound,
     color: "bg-amber-100 text-amber-700",
-    badge: "Privacidade",
+    badge: "Conquista",
   },
 ];
 
@@ -55,10 +55,12 @@ const quests = [
 
 const achievements = [
   ["⭐", "Estrela da Pesquisa"],
-  ["🛡️", "Guardiao da Senha"],
+  ["🛡️", "Guardião da Senha"],
   ["🎮", "Mestre dos Apps"],
   ["🏅", "Clique Consciente"],
 ];
+
+const guides = ["Meu Avatar", "Minha Família", "Meus Guias"];
 
 export default function Home() {
   return (
@@ -67,7 +69,7 @@ export default function Home() {
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-white/82 px-4 py-2 text-sm font-black text-slate-700 shadow-sm">
             <Wifi aria-hidden="true" size={18} className="text-emerald-600" />
-            Inclusao digital infantil
+            Inclusão digital infantil
           </div>
 
           <div className="space-y-5">
@@ -75,27 +77,37 @@ export default function Home() {
               Conecta Kids
             </h1>
             <p className="max-w-2xl text-xl font-bold leading-relaxed text-slate-700">
-              Uma plataforma divertida para criancas aprenderem computador,
-              celular, internet, aplicativos e seguranca digital com apoio de
-              responsaveis e professores.
+              Aprenda a usar celular, computador e internet com segurança,
+              diversão e responsabilidade.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <a
               href="#aulas"
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-4 text-base font-black text-white transition hover:-translate-y-0.5 hover:bg-slate-800"
+              className="inline-flex items-center gap-2 rounded-2xl bg-sky-500 px-5 py-4 text-base font-black text-white transition hover:-translate-y-0.5 hover:bg-sky-600"
             >
               <BookOpen aria-hidden="true" size={20} />
-              Ver aulas
+              Começar jornada
             </a>
             <a
               href="#tutor"
               className="inline-flex items-center gap-2 rounded-2xl bg-yellow-300 px-5 py-4 text-base font-black text-slate-950 transition hover:-translate-y-0.5 hover:bg-yellow-200"
             >
               <Brain aria-hidden="true" size={20} />
-              Falar com o tutor
+              Tutor Digital
             </a>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {guides.map((guide) => (
+              <span
+                key={guide}
+                className="rounded-full bg-white/82 px-4 py-2 text-sm font-black text-slate-700 shadow-sm"
+              >
+                {guide}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -107,17 +119,17 @@ export default function Home() {
               </div>
               <div className="mt-5 rounded-3xl bg-white p-4 text-center">
                 <p className="text-sm font-black uppercase tracking-[0.18em] text-pink-600">
-                  Mascote
+                  Meu Avatar
                 </p>
                 <p className="text-3xl font-black text-slate-950">Bit</p>
                 <p className="mt-1 font-bold text-slate-600">
-                  Seu amigo para aprender tecnologia sem sustos.
+                  Seu amigo nas aventuras digitais.
                 </p>
               </div>
             </div>
           </div>
-          <div className="absolute bottom-4 left-4 rounded-3xl bg-emerald-500 px-5 py-4 font-black text-white kid-shadow">
-            🏆 4 missoes hoje
+          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 rounded-3xl bg-emerald-500 px-5 py-4 font-black text-white kid-shadow md:bottom-10 md:-left-16 md:translate-x-0">
+            🏆 4 missões hoje
           </div>
           <div className="absolute right-4 top-0 rounded-3xl bg-pink-500 px-5 py-4 font-black text-white kid-shadow">
             ✨ +120 pontos
@@ -130,15 +142,15 @@ export default function Home() {
           <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.18em] text-pink-600">
-                Trilhas de aprendizagem
+                Jornada de aventuras
               </p>
               <h2 className="text-4xl font-black text-slate-950">
-                Aulas curtas, coloridas e praticas
+                Missões curtas, coloridas e práticas
               </h2>
             </div>
-            <div className="inline-flex max-w-max items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white">
+            <div className="inline-flex max-w-max items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-black text-white">
               <Gamepad2 aria-hidden="true" size={18} />
-              Aprender jogando
+              Aprender brincando
             </div>
           </div>
 
@@ -177,7 +189,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.16em] text-amber-900">
-                  Missoes
+                  Missões
                 </p>
                 <h2 className="text-3xl font-black text-slate-950">
                   Checklist do dia
@@ -206,10 +218,10 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-sm font-black uppercase tracking-[0.16em] text-pink-600">
-                    Conquistas
+                    Minhas conquistas
                   </p>
                   <h2 className="text-2xl font-black text-slate-900">
-                    Medalhas e selos
+                    Medalhas e estrelinhas
                   </h2>
                 </div>
               </div>
@@ -229,20 +241,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="tutor" className="bg-slate-100 px-5 py-14 md:px-8">
+      <section id="tutor" className="bg-sky-50 px-5 py-14 md:px-8">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="space-y-5">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-700">
               <Star aria-hidden="true" className="text-yellow-500" size={18} />
-              Tutor digital
+              Tutor Digital
             </div>
             <h2 className="text-4xl font-black text-slate-950">
-              Pergunte, pratique e aprenda com seguranca
+              Pergunte, pratique e avance na jornada
             </h2>
             <p className="text-lg font-bold leading-relaxed text-slate-700">
-              O chat foi preparado para explicar tecnologia em portugues simples
-              e reforcar bons habitos digitais. A chave da OpenAI fica somente
-              no servidor.
+              Uma conversa simples, alegre e segura para tirar dúvidas, vencer
+              desafios e chamar um adulto quando precisar.
             </p>
           </div>
           <TutorChat />
