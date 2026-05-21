@@ -67,6 +67,12 @@ A Home (`/`) apresenta a proposta do Conecta Kids com:
 - CTA final para cadastro.
 - Footer com links de privacidade e termos.
 
+## Login e cadastro
+
+`/login` contém e-mail, senha, botão Entrar, botão Entrar com Google, link para cadastro e recuperação de senha.
+
+`/cadastro` contém nome completo, e-mail, senha, confirmação de senha, tipo de perfil, aceite dos termos e botão Criar minha conta.
+
 ## Stack
 
 - Next.js com App Router
@@ -109,7 +115,8 @@ Regras importantes:
 1. Crie um projeto no Supabase.
 2. Copie `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 3. Rode o SQL de `supabase/schema.sql` no SQL Editor do Supabase.
-4. Configure Auth com magic link ou outro provedor permitido para o projeto.
+4. Configure Auth com e-mail/senha e Google OAuth.
+5. Enquanto o Supabase não estiver configurado, `/login` e `/cadastro` usam mock visual.
 
 ## Kids Digital
 

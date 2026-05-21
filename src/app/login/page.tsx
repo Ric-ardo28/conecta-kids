@@ -1,4 +1,4 @@
-import { AuthPanel } from "@/components/AuthPanel";
+import { LoginForm } from "@/components/LoginForm";
 import { PageShell } from "@/components/PageShell";
 
 export default function LoginPage() {
@@ -15,11 +15,11 @@ export default function LoginPage() {
             Entrada segura
           </h2>
           <p className="mt-3 font-bold leading-relaxed text-slate-700">
-            Crianças devem entrar com ajuda de um adulto. O link mágico ajuda a
-            manter a jornada protegida.
+            Crianças devem entrar com ajuda de um adulto. O acesso com senha ou
+            Google será ativado quando o ambiente estiver configurado.
           </p>
         </div>
-        <AuthPanel />
+        <LoginForm />
       </div>
     </PageShell>
   );

@@ -3,13 +3,11 @@
 import { FormEvent, useEffect, useState } from "react";
 import { LogIn, ShieldCheck, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { hasSupabaseBrowserConfig } from "@/lib/supabase/config";
 import { productAreas } from "@/lib/product-areas";
 
 export function AuthPanel() {
-  const hasSupabaseConfig = Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  );
+  const hasSupabaseConfig = hasSupabaseBrowserConfig();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(
     hasSupabaseConfig

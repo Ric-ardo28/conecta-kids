@@ -1,5 +1,5 @@
-import { AuthPanel } from "@/components/AuthPanel";
 import { PageShell } from "@/components/PageShell";
+import { SignupForm } from "@/components/SignupForm";
 
 export default function CadastroPage() {
   return (
@@ -16,10 +16,11 @@ export default function CadastroPage() {
           </h2>
           <p className="mt-3 font-bold leading-relaxed text-slate-700">
             O cadastro deve ser feito com um adulto por perto. Assim a criança
-            aprende tecnologia com cuidado desde o começo.
+            aprende tecnologia com cuidado desde o começo e escolhe o tipo de
+            perfil correto.
           </p>
         </div>
-        <AuthPanel />
+        <SignupForm />
       </div>
     </PageShell>
   );
