@@ -49,7 +49,7 @@ export const loggedRoutes = [
     technicalName: "Chat",
     label: productAreas.chat,
     description:
-      "Converse com o tutor digital para tirar dúvidas sobre tecnologia segura.",
+      "Converse com o Tutor Digital para tirar dúvidas sobre tecnologia segura.",
   },
   {
     href: "/turmas",

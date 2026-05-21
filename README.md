@@ -73,6 +73,23 @@ A Home (`/`) apresenta a proposta do Conecta Kids com:
 
 `/cadastro` contém nome completo, e-mail, senha, confirmação de senha, tipo de perfil, aceite dos termos e botão Criar minha conta.
 
+## Área logada e dashboard
+
+As páginas logadas usam sidebar colorida com:
+
+- Minha Jornada
+- Aventuras Digitais
+- Missões
+- Desafios
+- Hall das Estrelinhas
+- Tutor Digital
+- Minha Turminha
+- Meu Avatar
+- Minha Família
+- Meus Guias
+
+`/dashboard` apresenta a Minha Jornada com blocos para criança, responsável e professor.
+
 ## Stack
 
 - Next.js com App Router
