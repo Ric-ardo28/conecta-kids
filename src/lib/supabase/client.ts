@@ -1,4 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
+import type { Database } from "./types";
 
 let browserClient:
   | ReturnType<typeof createBrowserClient<Database>>
@@ -21,52 +22,3 @@ export function createSupabaseBrowserClient() {
 
   return browserClient;
 }
-
-export type Database = {
-  public: {
-    Tables: {
-      profiles: {
-        Row: {
-          id: string;
-          full_name: string | null;
-          role: "crianca" | "responsavel" | "professor";
-          points: number;
-          created_at: string;
-        };
-        Insert: {
-          id: string;
-          full_name?: string | null;
-          role?: "crianca" | "responsavel" | "professor";
-          points?: number;
-          created_at?: string;
-        };
-        Update: {
-          full_name?: string | null;
-          role?: "crianca" | "responsavel" | "professor";
-          points?: number;
-        };
-      };
-      achievements: {
-        Row: {
-          id: string;
-          title: string;
-          description: string;
-          icon: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          title: string;
-          description: string;
-          icon: string;
-          created_at?: string;
-        };
-        Update: {
-          title?: string;
-          description?: string;
-          icon?: string;
-        };
-      };
-    };
-  };
-};

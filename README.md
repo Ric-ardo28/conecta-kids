@@ -161,6 +161,40 @@ Regras importantes:
 4. Configure Auth com e-mail/senha e Google OAuth.
 5. Enquanto o Supabase não estiver configurado, `/login` e `/cadastro` usam mock visual.
 
+Arquivos principais:
+
+- `src/lib/supabase/client.ts`: client de browser com `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+- `src/lib/supabase/server.ts`: client server-side com cookies via `@supabase/ssr`.
+- `middleware.ts`: protege rotas privadas quando Supabase URL e Anon Key estiverem configuradas.
+- `supabase/schema.sql`: tabelas de perfis, crianças, responsáveis, professores, turmas, aventuras, missões, desafios, progresso, ranking e chat futuro.
+
+Rotas públicas:
+
+- `/`
+- `/login`
+- `/cadastro`
+- `/privacidade`
+- `/termos`
+
+Rotas privadas:
+
+- `/dashboard`
+- `/trilhas`
+- `/aulas`
+- `/exercicios`
+- `/ranking`
+- `/chat`
+- `/turmas`
+- `/perfil`
+- `/responsaveis`
+- `/professores`
+
+Segurança Supabase:
+
+- RLS deve ficar habilitado nas tabelas do schema `public`.
+- As políticas em `supabase/schema.sql` são ponto de partida para o MVP e devem ser revisadas antes de produção.
+- `SUPABASE_SERVICE_ROLE_KEY` não é usada no frontend e não deve ser enviada para componentes client-side.
+
 ## Kids Digital
 
 O Tutor Digital fica em `POST /api/chat`. O frontend envia mensagens para essa rota, e a rota chama a OpenAI no servidor usando `OPENAI_API_KEY`.
