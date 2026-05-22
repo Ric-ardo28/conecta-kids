@@ -1,5 +1,7 @@
 -- Conecta Kids - Supabase schema
 -- Rode este arquivo no SQL Editor do Supabase para preparar Auth + Postgres.
+-- Este SQL não é executado automaticamente pelo Next.js ou pela Vercel.
+-- Execute manualmente no Supabase Dashboard: Project > SQL Editor > New query.
 -- Importante:
 -- 1. A chave service_role nunca deve ser usada no frontend.
 -- 2. Todas as tabelas em public ficam com RLS habilitado.
@@ -10,6 +12,7 @@
 create extension if not exists "pgcrypto";
 
 create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
@@ -126,8 +129,7 @@ create table if not exists public.user_progress (
   progress_percent integer not null default 0
     check (progress_percent between 0 and 100),
   stars integer not null default 0 check (stars >= 0),
-  updated_at timestamptz not null default now(),
-  unique (user_id, adventure_id, mission_id)
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists public.achievements (
@@ -171,6 +173,20 @@ create index if not exists missions_adventure_id_idx on public.missions(adventur
 create index if not exists challenges_mission_id_idx on public.challenges(mission_id);
 create index if not exists challenge_answers_user_id_idx on public.challenge_answers(user_id);
 create index if not exists user_progress_user_id_idx on public.user_progress(user_id);
+alter table public.user_progress
+  drop constraint if exists user_progress_user_id_adventure_id_mission_id_key;
+create unique index if not exists user_progress_user_adventure_mission_idx
+  on public.user_progress(user_id, adventure_id, mission_id)
+  where adventure_id is not null and mission_id is not null;
+create unique index if not exists user_progress_user_adventure_idx
+  on public.user_progress(user_id, adventure_id)
+  where adventure_id is not null and mission_id is null;
+create unique index if not exists user_progress_user_mission_idx
+  on public.user_progress(user_id, mission_id)
+  where adventure_id is null and mission_id is not null;
+create unique index if not exists user_progress_user_global_idx
+  on public.user_progress(user_id)
+  where adventure_id is null and mission_id is null;
 create index if not exists ranking_user_id_idx on public.ranking(user_id);
 create index if not exists chat_messages_user_id_created_at_idx on public.chat_messages(user_id, created_at desc);
 
@@ -188,7 +204,11 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', ''),
-    coalesce(new.raw_user_meta_data ->> 'role', 'crianca')
+    case
+      when new.raw_user_meta_data ->> 'role' in ('crianca', 'responsavel', 'professor')
+        then new.raw_user_meta_data ->> 'role'
+      else 'crianca'
+    end
   )
   on conflict (id) do nothing;
 
@@ -200,6 +220,9 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function private.handle_new_user();
+
+grant usage on schema private to supabase_auth_admin;
+grant execute on function private.handle_new_user() to supabase_auth_admin;
 
 grant usage on schema public to anon, authenticated;
 grant select on public.digital_adventures, public.missions, public.challenges, public.achievements to authenticated;
@@ -296,14 +319,36 @@ drop policy if exists "responsible_children_insert_responsible" on public.respon
 create policy "responsible_children_insert_responsible"
   on public.responsible_children for insert
   to authenticated
-  with check (responsible_id = (select auth.uid()));
+  with check (
+    responsible_id = (select auth.uid())
+    and status = 'pending'
+  );
 
 drop policy if exists "responsible_children_update_responsible" on public.responsible_children;
 create policy "responsible_children_update_responsible"
   on public.responsible_children for update
   to authenticated
-  using (responsible_id = (select auth.uid()))
-  with check (responsible_id = (select auth.uid()));
+  using (
+    responsible_id = (select auth.uid())
+    or exists (
+      select 1
+      from public.children c
+      where c.id = responsible_children.child_id
+        and c.profile_id = (select auth.uid())
+    )
+  )
+  with check (
+    (
+      responsible_id = (select auth.uid())
+      and status = 'pending'
+    )
+    or exists (
+      select 1
+      from public.children c
+      where c.id = responsible_children.child_id
+        and c.profile_id = (select auth.uid())
+    )
+  );
 
 -- RLS: professores, turmas e alunos.
 drop policy if exists "teachers_select_authenticated" on public.teachers;
@@ -474,10 +519,42 @@ create policy "user_progress_upsert_own"
   with check (user_id = (select auth.uid()));
 
 drop policy if exists "ranking_select_authenticated" on public.ranking;
-create policy "ranking_select_authenticated"
+drop policy if exists "ranking_select_related" on public.ranking;
+create policy "ranking_select_related"
   on public.ranking for select
   to authenticated
-  using (true);
+  using (
+    user_id = (select auth.uid())
+    or exists (
+      select 1
+      from public.children c
+      join public.responsible_children rc on rc.child_id = c.id
+      where c.profile_id = ranking.user_id
+        and rc.responsible_id = (select auth.uid())
+        and rc.status = 'active'
+    )
+    or exists (
+      select 1
+      from public.children target_child
+      join public.class_students target_student on target_student.child_id = target_child.id
+      join public.class_students viewer_student on viewer_student.class_id = target_student.class_id
+      join public.children viewer_child on viewer_child.id = viewer_student.child_id
+      where target_child.profile_id = ranking.user_id
+        and viewer_child.profile_id = (select auth.uid())
+        and target_student.status = 'active'
+        and viewer_student.status = 'active'
+    )
+    or exists (
+      select 1
+      from public.children target_child
+      join public.class_students target_student on target_student.child_id = target_child.id
+      join public.classes cl on cl.id = target_student.class_id
+      join public.teachers t on t.id = cl.teacher_id
+      where target_child.profile_id = ranking.user_id
+        and t.profile_id = (select auth.uid())
+        and target_student.status = 'active'
+    )
+  );
 
 drop policy if exists "ranking_update_own" on public.ranking;
 create policy "ranking_update_own"
