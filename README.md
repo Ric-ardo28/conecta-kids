@@ -116,6 +116,16 @@ As páginas logadas usam sidebar colorida com:
 
 `/professores` apresenta Meus Guias com lista de professores, área/matéria, turmas vinculadas e perfil resumido.
 
+## Design e componentes
+
+Componentes reutilizáveis ficam em:
+
+- `src/components/layout`: `Header`, `Footer`, `Sidebar` e `AppShell`.
+- `src/components/ui`: `Button`, `Input`, `Card`, `Badge`, `Progress`, `Avatar`, `Modal`, `Mascot`, `Sticker` e `EmptyState`.
+- `src/components/cards`: `AdventureCard`, `MissionCard`, `ChallengeCard`, `AchievementCard`, `RankingCard`, `ClassCard` e `SafetyTipCard`.
+
+O visual usa cards arredondados, sombras suaves, cores alegres, botões grandes, ícones amigáveis, figurinhas, animações com Tailwind e layout responsivo para boa leitura no celular.
+
 ## Stack
 
 - Next.js com App Router

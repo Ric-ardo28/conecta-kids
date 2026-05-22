@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, Sparkle, WandSparkles } from "lucide-react";
-import { SiteHeader } from "@/components/SiteHeader";
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
 
 type PageShellProps = {
   badge: string;
@@ -19,7 +20,7 @@ export function PageShell({
 }: PageShellProps) {
   return (
     <main className="min-h-screen">
-      <SiteHeader />
+      <Header />
       <section className="mx-auto max-w-7xl px-5 pb-14 pt-4 md:px-8">
         <Link
           href="/"
@@ -53,6 +54,7 @@ export function PageShell({
           {children}
         </div>
       </section>
+      <Footer />
     </main>
   );
 }
