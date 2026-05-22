@@ -36,6 +36,10 @@ function hasSupabaseServerConfig() {
   );
 }
 
+function shouldFailClosedWithoutSupabaseConfig() {
+  return process.env.NODE_ENV === "production" || process.env.VERCEL === "1";
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -47,8 +51,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (!hasSupabaseServerConfig()) {
+  if (!hasSupabaseServerConfig() && !shouldFailClosedWithoutSupabaseConfig()) {
     return NextResponse.next();
+  }
+
+  if (!hasSupabaseServerConfig()) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.searchParams.set("error", "supabase_config");
+    loginUrl.searchParams.set("redirectedFrom", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   const response = NextResponse.next({ request });
