@@ -108,6 +108,14 @@ As páginas logadas usam sidebar colorida com:
 
 `/ranking` apresenta um hall positivo com avatares, estrelinhas, níveis, medalhas, conquistas e progresso individual, reforçando que cada criança aprende no seu ritmo.
 
+## Turminha, Família e Guias
+
+`/turmas` apresenta a Minha Turminha com visão da criança, professor, missões da turma e painel para professores criarem turmas, listarem alunos e acompanharem progresso.
+
+`/responsaveis` apresenta a Minha Família com responsáveis vinculados, crianças vinculadas, status do vínculo, acompanhamento de progresso e alertas de segurança.
+
+`/professores` apresenta Meus Guias com lista de professores, área/matéria, turmas vinculadas e perfil resumido.
+
 ## Stack
 
 - Next.js com App Router
