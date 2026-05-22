@@ -58,29 +58,23 @@ function cleanMessage(message: ChatMessage) {
 
 export async function POST(request: Request) {
   try {
-    let userId: string | undefined;
     const hasSupabaseConfig = hasSupabaseServerConfig();
 
-    if (hasSupabaseConfig) {
-      const supabase = await createSupabaseServerClient();
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
-
-      if (error || !user) {
-        return Response.json({ error: "Unauthorized" }, { status: 401 });
-      }
-
-      userId = user.id;
-    } else if (process.env.NODE_ENV === "production") {
-      return Response.json(
-        { error: "Supabase não está configurado no servidor." },
-        { status: 503 },
-      );
+    if (!hasSupabaseConfig) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const rateLimitKey = getClientKey(request, userId);
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const rateLimitKey = getClientKey(request, user.id);
 
     if (isRateLimited(rateLimitKey)) {
       return Response.json(
