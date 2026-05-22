@@ -90,6 +90,10 @@ As páginas logadas usam sidebar colorida com:
 
 `/dashboard` apresenta a Minha Jornada com blocos para criança, responsável e professor.
 
+## Aventuras Digitais
+
+`/trilhas` apresenta cards de aventuras com título, descrição, emoji/ícone, nível, progresso, quantidade de missões e CTA para começar ou continuar.
+
 ## Stack
 
 - Next.js com App Router
