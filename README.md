@@ -104,6 +104,10 @@ As páginas logadas usam sidebar colorida com:
 
 `/exercicios` apresenta desafios educativos dos tipos múltipla escolha, verdadeiro ou falso, complete a frase e associação simples, com feedback imediato e explicação simples.
 
+## Hall das Estrelinhas
+
+`/ranking` apresenta um hall positivo com avatares, estrelinhas, níveis, medalhas, conquistas e progresso individual, reforçando que cada criança aprende no seu ritmo.
+
 ## Stack
 
 - Next.js com App Router
