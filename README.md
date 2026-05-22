@@ -100,6 +100,10 @@ As páginas logadas usam sidebar colorida com:
 
 `/aulas/[slug]` apresenta o detalhe da missão com conteúdo textual simples, área visual para imagem/vídeo, dica de segurança e ações para concluir a missão ou ir para desafio.
 
+## Desafios
+
+`/exercicios` apresenta desafios educativos dos tipos múltipla escolha, verdadeiro ou falso, complete a frase e associação simples, com feedback imediato e explicação simples.
+
 ## Stack
 
 - Next.js com App Router
