@@ -94,6 +94,12 @@ As páginas logadas usam sidebar colorida com:
 
 `/trilhas` apresenta cards de aventuras com título, descrição, emoji/ícone, nível, progresso, quantidade de missões e CTA para começar ou continuar.
 
+## Missões
+
+`/aulas` apresenta missões educativas com título, descrição, categoria, duração, dificuldade, status e botão Iniciar missão.
+
+`/aulas/[slug]` apresenta o detalhe da missão com conteúdo textual simples, área visual para imagem/vídeo, dica de segurança e ações para concluir a missão ou ir para desafio.
+
 ## Stack
 
 - Next.js com App Router
