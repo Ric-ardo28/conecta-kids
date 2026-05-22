@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import { hasSupabaseServerConfig } from "@/lib/supabase/config";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type ChatMessage = {
   role: "user" | "assistant";
@@ -11,6 +13,42 @@ const systemPrompt =
 const safetyReminder =
   "Mantenha a resposta curta e educativa, com no máximo 5 frases curtas ou 4 passos simples. Não peça nome completo, endereço, escola, telefone, localização, senha, foto ou dados da família. Se o assunto não for adequado para crianças, responda com cuidado e oriente a conversar com um responsável ou professor.";
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 12;
+
+const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+function getClientKey(request: Request, userId?: string) {
+  if (userId) {
+    return `user:${userId}`;
+  }
+
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  const ip = forwardedFor?.split(",")[0]?.trim();
+
+  return `ip:${ip || request.headers.get("x-real-ip") || "local"}`;
+}
+
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const current = rateLimitStore.get(key);
+
+  if (!current || current.resetAt <= now) {
+    rateLimitStore.set(key, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return false;
+  }
+
+  if (current.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+
+  current.count += 1;
+  return false;
+}
+
 function cleanMessage(message: ChatMessage) {
   return {
     role: message.role,
@@ -20,6 +58,37 @@ function cleanMessage(message: ChatMessage) {
 
 export async function POST(request: Request) {
   try {
+    let userId: string | undefined;
+    const hasSupabaseConfig = hasSupabaseServerConfig();
+
+    if (hasSupabaseConfig) {
+      const supabase = await createSupabaseServerClient();
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
+      if (error || !user) {
+        return Response.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
+      userId = user.id;
+    } else if (process.env.NODE_ENV === "production") {
+      return Response.json(
+        { error: "Supabase não está configurado no servidor." },
+        { status: 503 },
+      );
+    }
+
+    const rateLimitKey = getClientKey(request, userId);
+
+    if (isRateLimited(rateLimitKey)) {
+      return Response.json(
+        { error: "Muitas perguntas em pouco tempo. Tente novamente em instantes." },
+        { status: 429 },
+      );
+    }
+
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
