@@ -161,7 +161,7 @@ npm run dev
 
 Abra `http://localhost:3000`.
 
-## Variaveis de ambiente
+## Variaveis de ambiente local
 
 Crie um arquivo `.env.local` seguindo o `.env.example`:
 
@@ -172,6 +172,15 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=
 OPENAI_API_KEY=
 ```
+
+Para rodar localmente com autenticação e Tutor Digital, preencha:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: URL do projeto Supabase.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: anon/publishable key do Supabase.
+- `NEXT_PUBLIC_SITE_URL`: `http://localhost:3000` no ambiente local.
+- `OPENAI_API_KEY`: chave da OpenAI usada apenas no backend.
+
+`SUPABASE_SERVICE_ROLE_KEY` não é necessária para o app atual. Se for usada futuramente, mantenha apenas em ambiente server-side.
 
 Regras importantes:
 
@@ -188,6 +197,41 @@ Regras importantes:
 3. Rode o SQL de `supabase/schema.sql` no SQL Editor do Supabase.
 4. Configure Auth com e-mail/senha e Google OAuth.
 5. Enquanto o Supabase não estiver configurado, `/login` e `/cadastro` usam mock visual.
+
+### Banco de dados
+
+O arquivo `supabase/schema.sql` precisa ser executado manualmente:
+
+1. Abra o Supabase Dashboard.
+2. Entre no projeto.
+3. Acesse `SQL Editor`.
+4. Crie uma nova query.
+5. Cole todo o conteúdo de `supabase/schema.sql`.
+6. Execute a query.
+
+Esse passo cria tabelas, índices, trigger de perfil inicial, grants e policies de RLS para o MVP.
+
+### Google Auth
+
+No Supabase Dashboard:
+
+1. Acesse `Authentication > Providers`.
+2. Ative o provider Google.
+3. Preencha Client ID e Client Secret do Google.
+4. Confirme que e-mail/senha também está habilitado se quiser login tradicional.
+
+Em `Authentication > URL Configuration`, cadastre as Redirect URLs:
+
+```text
+http://localhost:3000/auth/callback
+https://sua-url-final-da-vercel.vercel.app/auth/callback
+```
+
+Se usar domínio próprio, adicione também:
+
+```text
+https://seu-dominio.com/auth/callback
+```
 
 Arquivos principais:
 
@@ -240,7 +284,20 @@ Regras do Tutor Digital:
 
 1. Importe o repositório na Vercel.
 2. Configure as variaveis de ambiente no projeto.
-3. Use o comando de build padrao:
+3. Garanta que `NEXT_PUBLIC_SITE_URL` aponte para a URL final do deploy.
+4. Cadastre a URL final em `Authentication > URL Configuration` no Supabase.
+5. Use o comando de build padrao:
+
+Variaveis obrigatórias na Vercel:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SITE_URL=https://sua-url-final-da-vercel.vercel.app
+OPENAI_API_KEY=
+```
+
+Não cadastre chaves reais no código. Use o painel da Vercel para segredos.
 
 ```bash
 npm run build
