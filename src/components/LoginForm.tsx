@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { KeyRound, LogIn, Mail, Search, Sparkles } from "lucide-react";
+import { getAuthCallbackUrl, getSiteUrl } from "@/lib/auth-redirect";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseBrowserConfig } from "@/lib/supabase/config";
 
 export function LoginForm() {
+  const router = useRouter();
   const hasSupabaseConfig = hasSupabaseBrowserConfig();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,11 +43,13 @@ export function LoginForm() {
         password,
       });
 
-      setStatus(
-        error
-          ? "Não consegui entrar. Confira e-mail e senha."
-          : "Entrada feita! Sua jornada está pronta.",
-      );
+      if (error) {
+        setStatus("Não consegui entrar. Confira e-mail e senha.");
+        return;
+      }
+
+      setStatus("Entrada feita! Sua jornada está pronta.");
+      router.replace("/dashboard");
     } finally {
       setIsLoading(false);
     }
@@ -60,9 +65,7 @@ export function LoginForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${
-          process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
-        }/auth/callback?next=/dashboard`,
+        redirectTo: getAuthCallbackUrl("/dashboard"),
       },
     });
 
@@ -84,7 +87,7 @@ export function LoginForm() {
 
     const supabase = createSupabaseBrowserClient();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${getSiteUrl()}/login`,
     });
 
     setStatus(
