@@ -126,6 +126,22 @@ Componentes reutilizáveis ficam em:
 
 O visual usa cards arredondados, sombras suaves, cores alegres, botões grandes, ícones amigáveis, figurinhas, animações com Tailwind e layout responsivo para boa leitura no celular.
 
+## Dados mockados
+
+Dados de demonstração ficam em `src/data`:
+
+- `mockUsers.ts`
+- `mockAdventures.ts`
+- `mockMissions.ts`
+- `mockChallenges.ts`
+- `mockRanking.ts`
+- `mockClasses.ts`
+- `mockChat.ts`
+- `mockAchievements.ts`
+- `mockSafetyTips.ts`
+
+Os mocks representam inclusão digital infantil com exemplos de uso do mouse, senha segura, links perigosos, pesquisa na internet e pedido de ajuda para adultos.
+
 ## Stack
 
 - Next.js com App Router
