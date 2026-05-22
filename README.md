@@ -155,7 +155,14 @@ Regras importantes:
 
 ## Kids Digital
 
-O Kids Digital fica em `POST /api/chat`. O frontend envia mensagens para essa rota, e a rota chama a OpenAI no servidor usando `OPENAI_API_KEY`.
+O Tutor Digital fica em `POST /api/chat`. O frontend envia mensagens para essa rota, e a rota chama a OpenAI no servidor usando `OPENAI_API_KEY`.
+
+Regras do Tutor Digital:
+
+- Responder em português do Brasil com linguagem simples, curta e educativa.
+- Não pedir nome completo, endereço, escola, telefone, localização, senha ou fotos.
+- Orientar a criança a procurar responsável ou professor em situações de medo, perigo, contato com estranho ou insegurança.
+- Estimular raciocínio e não incentivar dependência da IA.
 
 ## Deploy na Vercel
 
