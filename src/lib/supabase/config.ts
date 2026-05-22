@@ -4,3 +4,7 @@ export function hasSupabaseBrowserConfig() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   );
 }
+
+export function hasSupabaseServerConfig() {
+  return hasSupabaseBrowserConfig();
+}

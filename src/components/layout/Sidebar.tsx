@@ -4,6 +4,7 @@ import {
   Bot,
   GraduationCap,
   Home,
+  LogOut,
   Medal,
   Route,
   ShieldCheck,
@@ -89,6 +90,16 @@ export function Sidebar() {
         <Star aria-hidden="true" size={19} />
         <span className="font-black">128 estrelinhas</span>
       </div>
+
+      <form action="/auth/logout" method="post" className="mt-3">
+        <button
+          type="submit"
+          className="flex w-full items-center gap-3 rounded-2xl bg-slate-100 px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-rose-100 hover:text-rose-800"
+        >
+          <LogOut aria-hidden="true" size={19} />
+          Sair
+        </button>
+      </form>
     </aside>
   );
 }

@@ -57,12 +57,18 @@ export function LoginForm() {
     }
 
     const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${
+          process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+        }/auth/callback?next=/dashboard`,
       },
     });
+
+    if (error) {
+      setStatus("Não consegui abrir o login com Google agora.");
+    }
   }
 
   async function handlePasswordReset() {

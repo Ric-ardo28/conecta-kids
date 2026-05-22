@@ -152,6 +152,7 @@ Crie um arquivo `.env.local` seguindo o `.env.example`:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 SUPABASE_SERVICE_ROLE_KEY=
 OPENAI_API_KEY=
 ```
@@ -162,6 +163,7 @@ Regras importantes:
 - Nao crie `NEXT_PUBLIC_OPENAI_API_KEY`.
 - A OpenAI e usada somente na rota `src/app/api/chat/route.ts`.
 - `SUPABASE_SERVICE_ROLE_KEY` deve ficar somente em ambiente server-side.
+- `NEXT_PUBLIC_SITE_URL` deve apontar para `http://localhost:3000` no ambiente local e para a URL da Vercel no deploy.
 
 ## Supabase
 
@@ -176,6 +178,8 @@ Arquivos principais:
 - `src/lib/supabase/client.ts`: client de browser com `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - `src/lib/supabase/server.ts`: client server-side com cookies via `@supabase/ssr`.
 - `middleware.ts`: protege rotas privadas quando Supabase URL e Anon Key estiverem configuradas.
+- `src/app/auth/callback/route.ts`: troca o code OAuth por sessão Supabase e redireciona para `/dashboard`.
+- `src/app/auth/logout/route.ts`: encerra a sessão e redireciona para `/login`.
 - `supabase/schema.sql`: tabelas de perfis, crianças, responsáveis, professores, turmas, aventuras, missões, desafios, progresso, ranking e chat futuro.
 
 Rotas públicas:
