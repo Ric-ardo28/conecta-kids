@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import type { Database } from "./types";
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
@@ -11,7 +10,7 @@ export async function createSupabaseServerClient() {
     throw new Error("Supabase URL e Anon Key precisam estar configuradas.");
   }
 
-  return createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();

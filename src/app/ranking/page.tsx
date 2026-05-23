@@ -118,6 +118,12 @@ export default function RankingPage() {
           </div>
         </section>
 
+        <section className="rounded-[1.4rem] border-4 border-dashed border-indigo-200 bg-indigo-50 p-5 font-bold text-indigo-950">
+          Conteúdo de exemplo: este hall ainda não mostra ranking real da sua
+          conta. Quando houver dados no Supabase, eles substituirão estes
+          exemplos.
+        </section>
+
         <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <div className="kid-shadow rounded-[2rem] border-4 border-white bg-sky-100 p-6">
             <div className="flex items-center gap-4">

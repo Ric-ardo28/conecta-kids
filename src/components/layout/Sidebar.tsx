@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { loggedRoutes } from "@/lib/routes";
+import type { Profile } from "@/lib/supabase/current-user";
 
 const routeIcons = {
   "/dashboard": Home,
@@ -43,7 +44,41 @@ const routeColors = [
   "bg-violet-100 text-violet-800",
 ];
 
-export function Sidebar() {
+type SidebarProps = {
+  profile?: Profile;
+};
+
+function getInitials(name?: string | null) {
+  const cleanName = name?.trim();
+
+  if (!cleanName) {
+    return "CK";
+  }
+
+  return cleanName
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
+
+function getRoleLabel(role?: Profile["role"]) {
+  if (role === "responsavel") {
+    return "Responsável";
+  }
+
+  if (role === "professor") {
+    return "Professor";
+  }
+
+  return "Criança";
+}
+
+export function Sidebar({ profile }: SidebarProps) {
+  const displayName = profile?.full_name || "Minha conta";
+  const avatarUrl = profile?.avatar_url;
+
   return (
     <aside className="kid-shadow rounded-[2rem] border-4 border-white bg-white/94 p-4 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:overflow-y-auto">
       <div className="mb-5 flex items-center gap-3 rounded-[1.4rem] bg-slate-950 p-4 text-white">
@@ -54,7 +89,32 @@ export function Sidebar() {
           <Link href="/" className="text-xl font-black">
             Conecta Kids
           </Link>
-          <p className="text-sm font-bold text-sky-100">Área logada</p>
+          <p className="text-sm font-bold text-sky-100">
+            {getRoleLabel(profile?.role)}
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-5 rounded-[1.4rem] bg-sky-50 p-4">
+        <div className="flex items-center gap-3">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt=""
+              className="size-12 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="grid size-12 place-items-center rounded-2xl bg-pink-100 text-sm font-black text-pink-800">
+              {getInitials(displayName)}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="truncate font-black text-slate-950">{displayName}</p>
+            <p className="text-sm font-bold text-slate-600">
+              {profile?.points ?? 0} pontos
+            </p>
+          </div>
         </div>
       </div>
 
@@ -88,7 +148,7 @@ export function Sidebar() {
 
       <div className="mt-3 flex items-center gap-2 rounded-[1.4rem] bg-emerald-100 p-4 text-emerald-900">
         <Star aria-hidden="true" size={19} />
-        <span className="font-black">128 estrelinhas</span>
+        <span className="font-black">{profile?.points ?? 0} pontos reais</span>
       </div>
 
       <form action="/auth/logout" method="post" className="mt-3">

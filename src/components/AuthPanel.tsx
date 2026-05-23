@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 import { LogIn, ShieldCheck, Sparkles } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseBrowserConfig } from "@/lib/supabase/config";
@@ -23,7 +24,7 @@ export function AuthPanel() {
 
     const supabase = createSupabaseBrowserClient();
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
       if (data.session?.user.email) {
         setStatus(
           `Olá, ${data.session.user.email}! Sua jornada está pronta.`,
