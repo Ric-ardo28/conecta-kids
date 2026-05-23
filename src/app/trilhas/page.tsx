@@ -158,6 +158,7 @@ export default async function TrilhasPage() {
                     progressRows,
                   )}
                   missions={adventureMissions.length}
+                  href={`/aulas?adventure=${adventure.id}`}
                 />
               );
             })}

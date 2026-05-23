@@ -9,8 +9,19 @@ import type { Database, Json } from "@/lib/supabase/types";
 
 type ChallengeRow = Pick<
   Database["public"]["Tables"]["challenges"]["Row"],
-  "id" | "title" | "question" | "challenge_type" | "options" | "explanation"
+  | "id"
+  | "mission_id"
+  | "title"
+  | "question"
+  | "challenge_type"
+  | "options"
+  | "explanation"
 >;
+type ExerciciosPageProps = {
+  searchParams?: Promise<{
+    mission?: string;
+  }>;
+};
 
 const challengeTypes = [
   "Múltipla escolha",
@@ -38,14 +49,22 @@ function mapChallenge(row: ChallengeRow): Challenge {
   };
 }
 
-export default async function ExerciciosPage() {
+export default async function ExerciciosPage({ searchParams }: ExerciciosPageProps) {
+  const params = await searchParams;
+  const missionId = params?.mission;
   const { supabase, profile } = await getCurrentUserProfile();
 
+  let challengesQuery = supabase
+    .from("challenges")
+    .select("id, mission_id, title, question, challenge_type, options, explanation")
+    .order("created_at", { ascending: true });
+
+  if (missionId) {
+    challengesQuery = challengesQuery.eq("mission_id", missionId);
+  }
+
   const [challengesResult, completedResult, rankingResult] = await Promise.all([
-    supabase
-      .from("challenges")
-      .select("id, title, question, challenge_type, options, explanation")
-      .order("created_at", { ascending: true }),
+    challengesQuery,
     supabase
       .from("challenge_answers")
       .select("challenge_id")
@@ -72,7 +91,7 @@ export default async function ExerciciosPage() {
                 {productAreas.exercises}
               </p>
               <h1 className="text-4xl font-black text-slate-950 md:text-5xl">
-                Desafios educativos
+                {missionId ? "Desafios da missão" : "Desafios educativos"}
               </h1>
               <p className="mt-3 max-w-3xl text-lg font-bold leading-relaxed text-slate-700">
                 Responda com calma, receba feedback simples e ganhe estrelinhas
