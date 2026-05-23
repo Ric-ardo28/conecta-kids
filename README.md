@@ -126,7 +126,7 @@ Componentes reutilizáveis ficam em:
 
 O visual usa cards arredondados, sombras suaves, cores alegres, botões grandes, ícones amigáveis, figurinhas, animações com Tailwind e layout responsivo para boa leitura no celular.
 
-## Dados mockados
+## Dados de demonstração
 
 Dados de demonstração ficam em `src/data`:
 
@@ -140,7 +140,9 @@ Dados de demonstração ficam em `src/data`:
 - `mockAchievements.ts`
 - `mockSafetyTips.ts`
 
-Os mocks representam inclusão digital infantil com exemplos de uso do mouse, senha segura, links perigosos, pesquisa na internet e pedido de ajuda para adultos.
+Esses arquivos servem apenas como referência/demo. As telas privadas principais
+devem mostrar dados reais do Supabase ou estado vazio amigável quando ainda não
+houver registros.
 
 ## Stack
 
@@ -209,7 +211,51 @@ O arquivo `supabase/schema.sql` precisa ser executado manualmente:
 5. Cole todo o conteúdo de `supabase/schema.sql`.
 6. Execute a query.
 
-Esse passo cria tabelas, índices, trigger de perfil inicial, grants e policies de RLS para o MVP.
+Esse passo cria tabelas, índices, trigger de perfil inicial, grants, policies de RLS, função de pontuação dos desafios e configuração do bucket de avatar para o MVP.
+
+### Pontuação dos desafios
+
+A pontuação real dos desafios usa:
+
+- `public.challenge_answers`: registra tentativas por usuário.
+- `public.profiles.points`: total de pontos do perfil.
+- `public.ranking.stars`: estrelinhas do Hall das Estrelinhas.
+- `public.user_progress.stars`: progresso por missão.
+- `public.submit_challenge_answer(...)`: função transacional chamada por `POST /api/challenges/answer`.
+
+O schema cria o índice parcial `challenge_answers_one_correct_per_user_challenge_idx`, que impede que o mesmo `user_id` pontue duas vezes o mesmo `challenge_id` correto.
+
+Depois de atualizar o projeto em produção, rode novamente `supabase/schema.sql` no SQL Editor para garantir que a função e o índice estejam aplicados.
+
+### Avatar com Supabase Storage
+
+O upload de avatar usa o bucket `avatars` no Supabase Storage.
+
+O arquivo `supabase/schema.sql` inclui SQL idempotente para:
+
+- Criar ou atualizar o bucket `avatars`.
+- Marcar o bucket como público.
+- Limitar uploads a 2MB.
+- Permitir `image/png`, `image/jpeg` e `image/webp`.
+- Criar policies para que cada usuário autenticado envie, leia, atualize e remova apenas arquivos dentro da própria pasta `{user_id}/`.
+
+Na tela `/perfil`, o upload salva a imagem no caminho:
+
+```text
+{user_id}/avatar.ext
+```
+
+Depois do upload, `profiles.avatar_url` recebe a URL pública do arquivo. O avatar aparece no perfil, sidebar e dashboard. Se não houver avatar, a interface mostra as iniciais do nome.
+
+Checklist manual no Supabase:
+
+1. Rode `supabase/schema.sql` atualizado no SQL Editor.
+2. Confirme em `Storage` que o bucket `avatars` existe.
+3. Confirme que o bucket permite os formatos `png`, `jpg/jpeg` e `webp`.
+4. Faça login no app.
+5. Acesse `/perfil`.
+6. Envie uma imagem de até 2MB.
+7. Verifique se o avatar aparece em `/perfil`, sidebar e `/dashboard`.
 
 ### Google Auth
 
