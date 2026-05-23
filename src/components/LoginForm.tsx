@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { KeyRound, LogIn, Mail, Search, Sparkles } from "lucide-react";
+import { KeyRound, LogIn, Mail, Sparkles } from "lucide-react";
 import { getAuthCallbackUrl, getSiteUrl } from "@/lib/auth-redirect";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { hasSupabaseBrowserConfig } from "@/lib/supabase/config";
@@ -155,9 +155,10 @@ export function LoginForm() {
       <button
         type="button"
         onClick={() => void handleGoogleLogin()}
-        className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-5 py-3 font-black text-slate-800 transition hover:bg-slate-50"
+        className="mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-black text-slate-700 shadow-sm transition hover:bg-slate-50 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-sky-100"
+        aria-label="Entrar com Google"
       >
-        <Search aria-hidden="true" size={20} />
+        <GoogleIcon />
         Entrar com Google
       </button>
 
@@ -179,5 +180,32 @@ export function LoginForm() {
         {status}
       </p>
     </section>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-5 shrink-0"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill="#4285F4"
+        d="M21.6 12.23c0-.78-.07-1.53-.2-2.23H12v4.22h5.37a4.6 4.6 0 0 1-1.99 3.02v2.51h3.22c1.89-1.74 3-4.3 3-7.52z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 22c2.7 0 4.96-.89 6.61-2.42l-3.22-2.51c-.9.6-2.04.95-3.39.95-2.6 0-4.81-1.76-5.6-4.12H3.08v2.59A9.99 9.99 0 0 0 12 22z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M6.4 13.9a6.02 6.02 0 0 1 0-3.8V7.51H3.08a10.01 10.01 0 0 0 0 8.98L6.4 13.9z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.98c1.47 0 2.79.5 3.83 1.5l2.85-2.85A9.57 9.57 0 0 0 12 2 9.99 9.99 0 0 0 3.08 7.51L6.4 10.1C7.19 7.74 9.4 5.98 12 5.98z"
+      />
+    </svg>
   );
 }
