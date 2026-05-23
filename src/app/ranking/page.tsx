@@ -45,11 +45,7 @@ export default async function RankingPage() {
     .eq("user_id", profile.id)
     .maybeSingle();
 
-  if (error) {
-    throw new Error("Não foi possível carregar seu Hall das Estrelinhas.");
-  }
-
-  const ranking = data as RankingRow | null;
+  const ranking = error ? null : (data as RankingRow | null);
   const medals = getMedals(ranking?.medals);
   const journeyStats = [
     { label: "Estrelinhas", value: String(ranking?.stars ?? 0), icon: Star },
@@ -255,6 +251,12 @@ export default async function RankingPage() {
               </article>
             </section>
           </>
+        ) : error ? (
+          <EmptyState
+            emoji="⭐"
+            title="Não consegui carregar seu Hall agora."
+            description="Seu Hall das Estrelinhas aparecerá aqui quando o Supabase responder corretamente."
+          />
         ) : (
           <EmptyState
             emoji="⭐"

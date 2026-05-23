@@ -27,11 +27,9 @@ export default async function ResponsaveisPage() {
     .select("id, status")
     .eq("responsible_id", profile.id);
 
-  if (linksResult.error) {
-    throw new Error("Não foi possível carregar vínculos familiares.");
-  }
-
-  const links = (linksResult.data ?? []) as ResponsibleChildRow[];
+  const links = linksResult.error
+    ? []
+    : ((linksResult.data ?? []) as ResponsibleChildRow[]);
   const activeLinks = links.filter((link) => link.status === "active");
   const familyStats = [
     { label: "Crianças vinculadas", value: String(links.length), icon: Users },
@@ -111,7 +109,13 @@ export default async function ResponsaveisPage() {
               </div>
             </div>
 
-            {links.length > 0 ? (
+            {linksResult.error ? (
+              <EmptyPanel
+                title="Não consegui carregar os vínculos agora."
+                description="Quando o Supabase responder corretamente, os vínculos reais aparecerão aqui."
+                icon={Users}
+              />
+            ) : links.length > 0 ? (
               <div className="grid gap-3">
                 {links.map((link) => (
                   <article key={link.id} className="rounded-[1.5rem] bg-sky-50 p-5">
