@@ -353,7 +353,20 @@ export type Database = {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      submit_challenge_answer: {
+        Args: {
+          p_challenge_id: string;
+          p_answer: string;
+        };
+        Returns: Array<{
+          already_completed: boolean;
+          awarded: boolean;
+          is_correct: boolean;
+          explanation: string;
+        }>;
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

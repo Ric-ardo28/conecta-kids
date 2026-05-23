@@ -244,6 +244,158 @@ create trigger on_auth_user_created
 grant usage on schema private to supabase_auth_admin;
 grant execute on function private.handle_new_user() to supabase_auth_admin;
 
+-- Submete resposta de desafio e contabiliza estrelinhas em uma única transação.
+-- A função roda com permissões do usuário autenticado, preservando RLS.
+create or replace function public.submit_challenge_answer(
+  p_challenge_id uuid,
+  p_answer text
+)
+returns table (
+  already_completed boolean,
+  awarded boolean,
+  is_correct boolean,
+  explanation text
+)
+language plpgsql
+set search_path = public
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_challenge public.challenges%rowtype;
+  v_is_correct boolean;
+  v_progress_id uuid;
+begin
+  if v_user_id is null then
+    raise exception 'Not authenticated';
+  end if;
+
+  select *
+    into v_challenge
+  from public.challenges
+  where id = p_challenge_id;
+
+  if not found then
+    raise exception 'Challenge not found';
+  end if;
+
+  if exists (
+    select 1
+    from public.challenge_answers
+    where user_id = v_user_id
+      and challenge_id = p_challenge_id
+      and is_correct
+  ) then
+    return query select true, false, true, v_challenge.explanation;
+    return;
+  end if;
+
+  v_is_correct :=
+    lower(
+      translate(
+        trim(p_answer),
+        'ÁÀÂÃÄÅáàâãäåÉÈÊËéèêëÍÌÎÏíìîïÓÒÔÕÖóòôõöÚÙÛÜúùûüÇç',
+        'AAAAAAaaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUUuuuuCc'
+      )
+    ) =
+    lower(
+      translate(
+        trim(v_challenge.correct_answer),
+        'ÁÀÂÃÄÅáàâãäåÉÈÊËéèêëÍÌÎÏíìîïÓÒÔÕÖóòôõöÚÙÛÜúùûüÇç',
+        'AAAAAAaaaaaaEEEEeeeeIIIIiiiiOOOOOoooooUUUUuuuuCc'
+      )
+    );
+
+  begin
+    insert into public.challenge_answers (
+      challenge_id,
+      user_id,
+      answer,
+      is_correct
+    )
+    values (
+      p_challenge_id,
+      v_user_id,
+      trim(p_answer),
+      v_is_correct
+    );
+  exception
+    when unique_violation then
+      return query select true, false, true, v_challenge.explanation;
+      return;
+  end;
+
+  if not v_is_correct then
+    return query select false, false, false, v_challenge.explanation;
+    return;
+  end if;
+
+  update public.profiles
+  set
+    points = points + 1,
+    updated_at = now()
+  where id = v_user_id;
+
+  insert into public.ranking (user_id, stars, level, medals, progress_percent)
+  values (v_user_id, 1, 'Aprendiz Digital', '[]'::jsonb, 0)
+  on conflict (user_id) do update
+  set
+    stars = public.ranking.stars + 1,
+    updated_at = now();
+
+  if v_challenge.mission_id is not null then
+    select id
+      into v_progress_id
+    from public.user_progress
+    where user_id = v_user_id
+      and adventure_id is null
+      and mission_id = v_challenge.mission_id;
+
+    if v_progress_id is null then
+      begin
+        insert into public.user_progress (
+          user_id,
+          mission_id,
+          status,
+          progress_percent,
+          stars
+        )
+        values (
+          v_user_id,
+          v_challenge.mission_id,
+          'completed',
+          100,
+          1
+        );
+      exception
+        when unique_violation then
+          update public.user_progress
+          set
+            status = 'completed',
+            progress_percent = greatest(progress_percent, 100),
+            stars = stars + 1,
+            updated_at = now()
+          where user_id = v_user_id
+            and adventure_id is null
+            and mission_id = v_challenge.mission_id;
+      end;
+    else
+      update public.user_progress
+      set
+        status = 'completed',
+        progress_percent = greatest(progress_percent, 100),
+        stars = stars + 1,
+        updated_at = now()
+      where id = v_progress_id;
+    end if;
+  end if;
+
+  return query select false, true, true, v_challenge.explanation;
+end;
+$$;
+
+revoke all on function public.submit_challenge_answer(uuid, text) from public, anon;
+grant execute on function public.submit_challenge_answer(uuid, text) to authenticated;
+
 grant usage on schema public to anon, authenticated;
 grant select on public.digital_adventures, public.missions, public.challenges, public.achievements to authenticated;
 grant select, insert, update on public.profiles to authenticated;
