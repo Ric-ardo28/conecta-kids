@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { BadgeCheck, ImageIcon, Save, ShieldCheck, UserRound } from "lucide-react";
+import { BadgeCheck, Save, ShieldCheck, Upload, UserRound } from "lucide-react";
 import { LoggedLayout } from "@/components/LoggedLayout";
 import { getCurrentUserProfile } from "@/lib/supabase/current-user";
 import { productAreas } from "@/lib/product-areas";
@@ -16,10 +16,41 @@ async function updateProfile(formData: FormData) {
 
   const { supabase, profile } = await getCurrentUserProfile();
   const fullName = String(formData.get("full_name") ?? "").trim();
-  const avatarUrl = String(formData.get("avatar_url") ?? "").trim();
+  const avatarFile = formData.get("avatar_file");
+  let avatarUrl = profile.avatar_url;
 
   if (!fullName) {
     redirect("/perfil?status=missing_name");
+  }
+
+  if (avatarFile instanceof File && avatarFile.size > 0) {
+    const allowedTypes = new Map([
+      ["image/png", "png"],
+      ["image/jpeg", "jpg"],
+      ["image/webp", "webp"],
+    ]);
+    const extension = allowedTypes.get(avatarFile.type);
+    const maxAvatarSize = 2 * 1024 * 1024;
+
+    if (!extension || avatarFile.size > maxAvatarSize) {
+      redirect("/perfil?status=invalid_file");
+    }
+
+    const avatarPath = `${profile.id}/avatar.${extension}`;
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(avatarPath, avatarFile, {
+        cacheControl: "3600",
+        contentType: avatarFile.type,
+        upsert: true,
+      });
+
+    if (uploadError) {
+      redirect("/perfil?status=avatar_error");
+    }
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(avatarPath);
+    avatarUrl = data.publicUrl;
   }
 
   const { error } = await supabase
@@ -140,6 +171,18 @@ export default async function PerfilPage({ searchParams }: PerfilPageProps) {
               </p>
             ) : null}
 
+            {params.status === "invalid_file" ? (
+              <p className="mb-4 rounded-2xl bg-yellow-100 px-4 py-3 font-black text-amber-950">
+                Envie uma imagem PNG, JPG, JPEG ou WEBP com até 2MB.
+              </p>
+            ) : null}
+
+            {params.status === "avatar_error" ? (
+              <p className="mb-4 rounded-2xl bg-rose-100 px-4 py-3 font-black text-rose-900">
+                Não consegui carregar a foto. Confira o bucket avatars no Supabase.
+              </p>
+            ) : null}
+
             <div className="grid gap-4">
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
@@ -156,15 +199,18 @@ export default async function PerfilPage({ searchParams }: PerfilPageProps) {
 
               <label className="block">
                 <span className="mb-2 flex items-center gap-2 text-sm font-black text-slate-700">
-                  <ImageIcon aria-hidden="true" size={17} />
-                  URL do avatar
+                  <Upload aria-hidden="true" size={17} />
+                  Carregar foto
                 </span>
                 <input
-                  name="avatar_url"
-                  defaultValue={profile.avatar_url ?? ""}
-                  className="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-950 outline-none transition focus:border-orange-400 focus:bg-white"
-                  placeholder="https://exemplo.com/avatar.png"
+                  name="avatar_file"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-950 file:mr-4 file:rounded-xl file:border-0 file:bg-orange-100 file:px-4 file:py-2 file:font-black file:text-orange-800 focus:border-orange-400 focus:bg-white"
                 />
+                <span className="mt-2 block text-sm font-bold text-slate-600">
+                  Formatos: PNG, JPG, JPEG ou WEBP. Tamanho máximo: 2MB.
+                </span>
               </label>
             </div>
 
