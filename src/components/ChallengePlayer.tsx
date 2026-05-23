@@ -8,6 +8,8 @@ type AnswerState = "idle" | "correct" | "incorrect";
 
 type ChallengePlayerProps = {
   challenges: Challenge[];
+  completedChallengeIds?: string[];
+  initialStars?: number;
 };
 
 const feedbackText = {
@@ -15,14 +17,34 @@ const feedbackText = {
   incorrect: "Quase lá! Vamos tentar de novo com calma.",
 };
 
-export function ChallengePlayer({ challenges }: ChallengePlayerProps) {
+type ChallengeAnswerResponse = {
+  alreadyCompleted?: boolean;
+  awarded?: boolean;
+  isCorrect?: boolean;
+  message?: string;
+  explanation?: string;
+  error?: string;
+};
+
+export function ChallengePlayer({
+  challenges,
+  completedChallengeIds = [],
+  initialStars = 0,
+}: ChallengePlayerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState("");
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
-  const [stars, setStars] = useState(0);
+  const [completedIds, setCompletedIds] = useState(
+    () => new Set(completedChallengeIds),
+  );
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackExplanation, setFeedbackExplanation] = useState("");
+  const [stars, setStars] = useState(initialStars);
+  const [isChecking, setIsChecking] = useState(false);
 
   const challenge = challenges[currentIndex];
   const isLast = currentIndex === challenges.length - 1;
+  const isCompleted = completedIds.has(challenge.id);
 
   const progress = useMemo(
     () => Math.round(((currentIndex + 1) / challenges.length) * 100),
@@ -30,35 +52,101 @@ export function ChallengePlayer({ challenges }: ChallengePlayerProps) {
   );
 
   function chooseAnswer(answer: string) {
-    setSelectedAnswer(answer);
-    setAnswerState("idle");
-  }
-
-  function checkAnswer() {
-    if (!selectedAnswer) {
+    if (isCompleted) {
       return;
     }
 
-    const isCorrect =
-      selectedAnswer.trim().toLowerCase() ===
-      challenge.answer.trim().toLowerCase();
+    setSelectedAnswer(answer);
+    setAnswerState("idle");
+    setFeedbackMessage("");
+    setFeedbackExplanation("");
+  }
 
-    setAnswerState(isCorrect ? "correct" : "incorrect");
+  function markCompleted(challengeId: string) {
+    setCompletedIds((currentIds) => {
+      const nextIds = new Set(currentIds);
+      nextIds.add(challengeId);
+      return nextIds;
+    });
+  }
 
-    if (isCorrect) {
-      setStars((currentStars) => currentStars + 1);
+  function checkAnswer() {
+    if (!selectedAnswer || isCompleted || isChecking) {
+      return;
     }
+
+    setIsChecking(true);
+
+    void (async () => {
+      try {
+        const response = await fetch("/api/challenges/answer", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            challengeId: challenge.id,
+            answer: selectedAnswer,
+          }),
+        });
+
+        const result = (await response.json()) as ChallengeAnswerResponse;
+
+        if (!response.ok) {
+          setAnswerState("incorrect");
+          setFeedbackMessage(
+            result.error ?? "Não consegui conferir agora. Tente novamente.",
+          );
+          setFeedbackExplanation(
+            "Se o problema continuar, peça ajuda para um adulto de confiança.",
+          );
+          return;
+        }
+
+        const isCorrect = Boolean(result.isCorrect);
+
+        setAnswerState(isCorrect ? "correct" : "incorrect");
+        setFeedbackMessage(
+          result.message ?? feedbackText[isCorrect ? "correct" : "incorrect"],
+        );
+        setFeedbackExplanation(result.explanation ?? challenge.explanation);
+
+        if (isCorrect) {
+          markCompleted(challenge.id);
+        }
+
+        if (result.awarded) {
+          setStars((currentStars) => currentStars + 1);
+        }
+      } catch {
+        setAnswerState("incorrect");
+        setFeedbackMessage("Não consegui conferir agora. Tente novamente.");
+        setFeedbackExplanation(
+          "Se o problema continuar, peça ajuda para um adulto de confiança.",
+        );
+      }
+    })().finally(() => {
+      setIsChecking(false);
+    });
   }
 
   function nextChallenge() {
     setCurrentIndex((index) => (isLast ? 0 : index + 1));
     setSelectedAnswer("");
     setAnswerState("idle");
+    setFeedbackMessage("");
+    setFeedbackExplanation("");
   }
 
   function retryChallenge() {
+    if (isCompleted) {
+      return;
+    }
+
     setSelectedAnswer("");
     setAnswerState("idle");
+    setFeedbackMessage("");
+    setFeedbackExplanation("");
   }
 
   return (
@@ -91,6 +179,7 @@ export function ChallengePlayer({ challenges }: ChallengePlayerProps) {
               value={selectedAnswer}
               onChange={(event) => chooseAnswer(event.target.value)}
               placeholder="Escreva sua resposta"
+              disabled={isCompleted}
               className="w-full rounded-2xl border-2 border-slate-200 bg-slate-50 px-4 py-3 text-slate-950 outline-none transition focus:border-sky-400 focus:bg-white"
             />
           </label>
@@ -101,6 +190,7 @@ export function ChallengePlayer({ challenges }: ChallengePlayerProps) {
                 key={option}
                 type="button"
                 onClick={() => chooseAnswer(option)}
+                disabled={isCompleted}
                 className={`rounded-2xl border-2 px-4 py-3 text-left font-black transition ${
                   selectedAnswer === option
                     ? "border-sky-500 bg-sky-100 text-sky-950"
@@ -117,15 +207,20 @@ export function ChallengePlayer({ challenges }: ChallengePlayerProps) {
           <button
             type="button"
             onClick={checkAnswer}
-            disabled={!selectedAnswer}
+            disabled={!selectedAnswer || isCompleted || isChecking}
             className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 font-black text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             <BadgeCheck aria-hidden="true" size={20} />
-            Conferir resposta
+            {isCompleted
+              ? "Resposta já conferida"
+              : isChecking
+                ? "Conferindo..."
+                : "Conferir resposta"}
           </button>
           <button
             type="button"
             onClick={retryChallenge}
+            disabled={isCompleted}
             className="inline-flex items-center gap-2 rounded-2xl bg-yellow-300 px-5 py-3 font-black text-slate-950 transition hover:bg-yellow-200"
           >
             <RotateCcw aria-hidden="true" size={20} />
@@ -143,10 +238,12 @@ export function ChallengePlayer({ challenges }: ChallengePlayerProps) {
           >
             <div className="flex items-center gap-2">
               <Sparkles aria-hidden="true" />
-              <p className="text-xl font-black">{feedbackText[answerState]}</p>
+              <p className="text-xl font-black">
+                {feedbackMessage || feedbackText[answerState]}
+              </p>
             </div>
             <p className="mt-2 font-bold leading-relaxed">
-              {challenge.explanation}
+              {feedbackExplanation || challenge.explanation}
             </p>
             <button
               type="button"

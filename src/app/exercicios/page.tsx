@@ -1,8 +1,16 @@
 import { Target } from "lucide-react";
 import { ChallengePlayer } from "@/components/ChallengePlayer";
 import { LoggedLayout } from "@/components/LoggedLayout";
-import { challenges } from "@/lib/challenges";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { challengeTypeLabels, type Challenge } from "@/lib/challenges";
 import { productAreas } from "@/lib/product-areas";
+import { getCurrentUserProfile } from "@/lib/supabase/current-user";
+import type { Database, Json } from "@/lib/supabase/types";
+
+type ChallengeRow = Pick<
+  Database["public"]["Tables"]["challenges"]["Row"],
+  "id" | "title" | "question" | "challenge_type" | "options" | "explanation"
+>;
 
 const challengeTypes = [
   "Múltipla escolha",
@@ -11,9 +19,51 @@ const challengeTypes = [
   "Associação simples",
 ];
 
-export default function ExerciciosPage() {
+function getOptions(options: Json): string[] {
+  if (!Array.isArray(options)) {
+    return [];
+  }
+
+  return options.filter((option): option is string => typeof option === "string");
+}
+
+function mapChallenge(row: ChallengeRow): Challenge {
+  return {
+    id: row.id,
+    type: challengeTypeLabels[row.challenge_type] ?? "Múltipla escolha",
+    title: row.title,
+    question: row.question,
+    options: getOptions(row.options),
+    explanation: row.explanation,
+  };
+}
+
+export default async function ExerciciosPage() {
+  const { supabase, profile } = await getCurrentUserProfile();
+
+  const [challengesResult, completedResult, rankingResult] = await Promise.all([
+    supabase
+      .from("challenges")
+      .select("id, title, question, challenge_type, options, explanation")
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("challenge_answers")
+      .select("challenge_id")
+      .eq("user_id", profile.id)
+      .eq("is_correct", true),
+    supabase.from("ranking").select("stars").eq("user_id", profile.id).maybeSingle(),
+  ]);
+
+  const challenges = challengesResult.error
+    ? []
+    : (challengesResult.data as ChallengeRow[]).map(mapChallenge);
+  const completedChallengeIds = completedResult.error
+    ? []
+    : completedResult.data.map((answer) => answer.challenge_id);
+  const initialStars = rankingResult.data?.stars ?? profile.points ?? 0;
+
   return (
-    <LoggedLayout>
+    <LoggedLayout profile={profile}>
       <div className="space-y-6">
         <section className="kid-shadow rounded-[2rem] border-4 border-white bg-white/92 p-6 md:p-8">
           <div className="grid gap-5 lg:grid-cols-[1fr_280px] lg:items-end">
@@ -51,7 +101,19 @@ export default function ExerciciosPage() {
           </div>
         </section>
 
-        <ChallengePlayer challenges={challenges} />
+        {challenges.length > 0 ? (
+          <ChallengePlayer
+            challenges={challenges}
+            completedChallengeIds={completedChallengeIds}
+            initialStars={initialStars}
+          />
+        ) : (
+          <EmptyState
+            emoji="⭐"
+            title="Nenhum desafio real cadastrado ainda."
+            description="Quando os desafios forem criados no Supabase, eles aparecerão aqui para a criança responder com segurança."
+          />
+        )}
       </div>
     </LoggedLayout>
   );

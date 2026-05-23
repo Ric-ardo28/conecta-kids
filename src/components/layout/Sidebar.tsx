@@ -86,7 +86,7 @@ export function Sidebar({ profile }: SidebarProps) {
           <Sparkles aria-hidden="true" />
         </div>
         <div>
-          <Link href="/" className="text-xl font-black">
+          <Link href="/dashboard" className="text-xl font-black">
             Conecta Kids
           </Link>
           <p className="text-sm font-bold text-sky-100">

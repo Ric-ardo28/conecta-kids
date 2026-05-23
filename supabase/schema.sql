@@ -172,6 +172,26 @@ create index if not exists class_students_child_id_idx on public.class_students(
 create index if not exists missions_adventure_id_idx on public.missions(adventure_id);
 create index if not exists challenges_mission_id_idx on public.challenges(mission_id);
 create index if not exists challenge_answers_user_id_idx on public.challenge_answers(user_id);
+-- Antes de criar a trava de duplicidade, preserva respostas antigas e mantém
+-- apenas a primeira resposta correta como pontuável por usuário/desafio.
+with duplicated_correct_answers as (
+  select
+    id,
+    row_number() over (
+      partition by user_id, challenge_id
+      order by created_at asc, id asc
+    ) as answer_order
+  from public.challenge_answers
+  where is_correct
+)
+update public.challenge_answers ca
+set is_correct = false
+from duplicated_correct_answers dca
+where ca.id = dca.id
+  and dca.answer_order > 1;
+create unique index if not exists challenge_answers_one_correct_per_user_challenge_idx
+  on public.challenge_answers(user_id, challenge_id)
+  where is_correct;
 create index if not exists user_progress_user_id_idx on public.user_progress(user_id);
 alter table public.user_progress
   drop constraint if exists user_progress_user_id_adventure_id_mission_id_key;
@@ -584,7 +604,7 @@ comment on table public.class_students is 'Alunos vinculados a turmas. RLS: prof
 comment on table public.digital_adventures is 'Aventuras Digitais. RLS: conteúdo educativo lido por usuários autenticados.';
 comment on table public.missions is 'Missões educativas. RLS: conteúdo educativo lido por usuários autenticados.';
 comment on table public.challenges is 'Desafios educativos. RLS: conteúdo educativo lido por usuários autenticados.';
-comment on table public.challenge_answers is 'Respostas dos desafios. RLS: cada usuário acessa as próprias respostas.';
+comment on table public.challenge_answers is 'Respostas dos desafios. RLS: cada usuário acessa as próprias respostas. O índice parcial challenge_answers_one_correct_per_user_challenge_idx impede pontuação duplicada para o mesmo desafio concluído.';
 comment on table public.user_progress is 'Progresso por aventura/missão. RLS: cada usuário acessa o próprio progresso.';
 comment on table public.achievements is 'Conquistas e medalhas. RLS: leitura autenticada.';
 comment on table public.ranking is 'Hall das Estrelinhas positivo. RLS: leitura autenticada e escrita do próprio registro.';
