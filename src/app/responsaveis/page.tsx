@@ -1,84 +1,51 @@
 import {
   AlertTriangle,
-  BadgeCheck,
   BarChart3,
   Clock,
   HeartHandshake,
   ShieldCheck,
   Sparkles,
-  Star,
   UserRound,
   Users,
   type LucideIcon,
 } from "lucide-react";
 import { LoggedLayout } from "@/components/LoggedLayout";
 import { productAreas } from "@/lib/product-areas";
+import { getCurrentUserProfile } from "@/lib/supabase/current-user";
+import type { Database } from "@/lib/supabase/types";
 
-const guardians = [
-  {
-    name: "Marina Souza",
-    relation: "Mãe",
-    status: "Vínculo ativo",
-    permission: "Acompanha progresso e alertas",
-    color: "bg-emerald-100 text-emerald-900",
-  },
-  {
-    name: "Paulo Souza",
-    relation: "Pai",
-    status: "Convite enviado",
-    permission: "Aguardando confirmação",
-    color: "bg-yellow-100 text-amber-950",
-  },
-];
+type ResponsibleChildRow = Pick<
+  Database["public"]["Tables"]["responsible_children"]["Row"],
+  "id" | "status"
+>;
 
-const linkedChildren = [
-  {
-    name: "Lia",
-    avatar: "🧑‍🚀",
-    progress: 82,
-    stars: 128,
-    status: "Aprendendo com segurança",
-  },
-  {
-    name: "Theo",
-    avatar: "🧑‍🎨",
-    progress: 47,
-    stars: 61,
-    status: "Precisa revisar links perigosos",
-  },
-];
+export default async function ResponsaveisPage() {
+  const { supabase, profile } = await getCurrentUserProfile();
 
-const familyStats = [
-  { label: "Crianças vinculadas", value: "2", icon: Users },
-  { label: "Responsáveis", value: "2", icon: HeartHandshake },
-  { label: "Progresso médio", value: "64%", icon: BarChart3 },
-  { label: "Tempo de uso hoje", value: "32 min", icon: Clock },
-];
+  const linksResult = await supabase
+    .from("responsible_children")
+    .select("id, status")
+    .eq("responsible_id", profile.id);
 
-const safetyAlerts = [
-  {
-    title: "Tentativa de link suspeito",
-    description: "A criança marcou dúvida antes de clicar. Ótima pausa!",
-    level: "Atenção",
-    color: "bg-yellow-100 text-amber-950",
-  },
-  {
-    title: "Pedido de ajuda registrado",
-    description: "Lia pediu ajuda sobre mensagem de pessoa desconhecida.",
-    level: "Acompanhar",
-    color: "bg-pink-100 text-pink-900",
-  },
-  {
-    title: "Rotina equilibrada",
-    description: "Tempo de uso dentro do combinado da família.",
-    level: "Tudo certo",
-    color: "bg-emerald-100 text-emerald-900",
-  },
-];
+  if (linksResult.error) {
+    throw new Error("Não foi possível carregar vínculos familiares.");
+  }
 
-export default function ResponsaveisPage() {
+  const links = (linksResult.data ?? []) as ResponsibleChildRow[];
+  const activeLinks = links.filter((link) => link.status === "active");
+  const familyStats = [
+    { label: "Crianças vinculadas", value: String(links.length), icon: Users },
+    {
+      label: "Vínculos ativos",
+      value: String(activeLinks.length),
+      icon: HeartHandshake,
+    },
+    { label: "Progresso médio", value: "0%", icon: BarChart3 },
+    { label: "Tempo de uso hoje", value: "0 min", icon: Clock },
+  ];
+
   return (
-    <LoggedLayout>
+    <LoggedLayout profile={profile}>
       <div className="space-y-6">
         <section className="kid-shadow rounded-[2rem] border-4 border-white bg-white/92 p-6 md:p-8">
           <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -91,7 +58,7 @@ export default function ResponsaveisPage() {
               </h1>
               <p className="mt-3 max-w-3xl text-lg font-bold leading-relaxed text-slate-700">
                 Responsáveis acompanham vínculos, progresso, alertas de
-                segurança e combinados digitais das crianças.
+                segurança e combinados digitais quando houver dados reais.
               </p>
             </div>
 
@@ -104,12 +71,6 @@ export default function ResponsaveisPage() {
               </p>
             </div>
           </div>
-        </section>
-
-        <section className="rounded-[1.4rem] border-4 border-dashed border-rose-200 bg-rose-50 p-5 font-bold text-rose-950">
-          Conteúdo de exemplo: esta área ainda não mostra vínculos reais da sua
-          conta. Quando houver dados no Supabase, eles substituirão estes
-          exemplos.
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
@@ -128,11 +89,11 @@ export default function ResponsaveisPage() {
               </div>
             </div>
 
-            <div className="grid gap-3">
-              {guardians.map((guardian) => (
-                <GuardianCard key={guardian.name} guardian={guardian} />
-              ))}
-            </div>
+            <EmptyPanel
+              title="Nenhum responsável vinculado ainda."
+              description="Quando vínculos reais forem cadastrados no Supabase, eles aparecerão aqui."
+              icon={UserRound}
+            />
           </div>
 
           <div className="kid-shadow rounded-[2rem] border-4 border-white bg-white/92 p-6">
@@ -150,11 +111,26 @@ export default function ResponsaveisPage() {
               </div>
             </div>
 
-            <div className="grid gap-3">
-              {linkedChildren.map((child) => (
-                <ChildProgressCard key={child.name} child={child} />
-              ))}
-            </div>
+            {links.length > 0 ? (
+              <div className="grid gap-3">
+                {links.map((link) => (
+                  <article key={link.id} className="rounded-[1.5rem] bg-sky-50 p-5">
+                    <h3 className="text-xl font-black text-slate-950">
+                      Vínculo familiar
+                    </h3>
+                    <p className="mt-2 font-bold text-slate-700">
+                      Status: {link.status}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyPanel
+                title="Nenhuma criança vinculada ainda."
+                description="Quando uma criança real for vinculada, o acompanhamento aparecerá aqui."
+                icon={Users}
+              />
+            )}
           </div>
         </section>
 
@@ -189,81 +165,15 @@ export default function ResponsaveisPage() {
                 </h2>
               </div>
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
-              {safetyAlerts.map((alert) => (
-                <SafetyAlertCard key={alert.title} alert={alert} />
-              ))}
-            </div>
+            <EmptyPanel
+              title="Nenhum alerta de segurança registrado."
+              description="Alertas reais aparecerão aqui quando forem cadastrados."
+              icon={ShieldCheck}
+            />
           </div>
         </section>
       </div>
     </LoggedLayout>
-  );
-}
-
-type Guardian = (typeof guardians)[number];
-
-function GuardianCard({ guardian }: { guardian: Guardian }) {
-  return (
-    <article className="rounded-[1.5rem] bg-slate-50 p-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="rounded-2xl bg-white p-3 text-rose-700">
-            <UserRound aria-hidden="true" />
-          </div>
-          <div>
-            <h3 className="text-xl font-black text-slate-950">
-              {guardian.name}
-            </h3>
-            <p className="font-bold text-slate-600">{guardian.relation}</p>
-          </div>
-        </div>
-        <span
-          className={`w-fit rounded-full px-3 py-2 text-xs font-black ${guardian.color}`}
-        >
-          {guardian.status}
-        </span>
-      </div>
-      <p className="mt-4 rounded-2xl bg-white px-4 py-3 font-bold text-slate-700">
-        {guardian.permission}
-      </p>
-    </article>
-  );
-}
-
-type LinkedChild = (typeof linkedChildren)[number];
-
-function ChildProgressCard({ child }: { child: LinkedChild }) {
-  return (
-    <article className="rounded-[1.5rem] bg-sky-50 p-5">
-      <div className="flex items-center gap-3">
-        <div className="grid size-16 place-items-center rounded-full bg-white text-3xl">
-          {child.avatar}
-        </div>
-        <div>
-          <h3 className="text-xl font-black text-slate-950">{child.name}</h3>
-          <p className="font-bold text-slate-600">{child.status}</p>
-        </div>
-      </div>
-      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
-        <div>
-          <div className="mb-2 flex items-center justify-between text-sm font-black text-slate-700">
-            <span>Progresso</span>
-            <span>{child.progress}%</span>
-          </div>
-          <div className="h-3 overflow-hidden rounded-full bg-white">
-            <div
-              className="h-full rounded-full bg-emerald-500"
-              style={{ width: `${child.progress}%` }}
-            />
-          </div>
-        </div>
-        <div className="inline-flex w-fit items-center gap-2 rounded-full bg-yellow-100 px-3 py-2 text-sm font-black text-amber-950">
-          <Star aria-hidden="true" size={16} />
-          {child.stars} estrelinhas
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -283,19 +193,22 @@ function MetricCard({ label, value, icon: Icon }: MetricCardProps) {
   );
 }
 
-type SafetyAlert = (typeof safetyAlerts)[number];
-
-function SafetyAlertCard({ alert }: { alert: SafetyAlert }) {
+function EmptyPanel({
+  title,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}) {
   return (
-    <article className={`rounded-[1.35rem] p-4 ${alert.color}`}>
-      <BadgeCheck aria-hidden="true" className="mb-3" />
-      <span className="text-xs font-black uppercase tracking-[0.14em]">
-        {alert.level}
-      </span>
-      <h3 className="mt-2 text-xl font-black">{alert.title}</h3>
-      <p className="mt-2 text-sm font-bold leading-relaxed">
-        {alert.description}
+    <div className="rounded-[1.5rem] bg-slate-50 p-5">
+      <Icon aria-hidden="true" className="mb-3 text-rose-700" />
+      <h3 className="text-2xl font-black text-slate-950">{title}</h3>
+      <p className="mt-2 font-bold leading-relaxed text-slate-700">
+        {description}
       </p>
-    </article>
+    </div>
   );
 }

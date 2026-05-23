@@ -3,7 +3,6 @@ import {
   BookOpen,
   GraduationCap,
   Lightbulb,
-  Mail,
   Medal,
   School,
   ShieldCheck,
@@ -13,71 +12,52 @@ import {
 } from "lucide-react";
 import { LoggedLayout } from "@/components/LoggedLayout";
 import { productAreas } from "@/lib/product-areas";
+import { getCurrentUserProfile } from "@/lib/supabase/current-user";
+import type { Database } from "@/lib/supabase/types";
 
-const teachers = [
-  {
-    name: "Ana Ribeiro",
-    avatar: "👩‍🏫",
-    area: "Segurança Digital",
-    classes: ["Turma Estrelinhas", "Turma Navegadores"],
-    summary:
-      "Ajuda crianças a reconhecer links perigosos, criar senhas fortes e pedir ajuda.",
-    badge: "Guia principal",
-    color: "bg-sky-100 text-sky-900",
-  },
-  {
-    name: "Bruno Lima",
-    avatar: "👨‍💻",
-    area: "Informática Básica",
-    classes: ["Primeiros Passos", "Mouse e Teclado"],
-    summary:
-      "Ensina computador, teclado, mouse, arquivos e cuidados ao ligar e desligar.",
-    badge: "Guia técnico",
-    color: "bg-emerald-100 text-emerald-900",
-  },
-  {
-    name: "Clara Mendes",
-    avatar: "👩‍🔬",
-    area: "Pesquisa e Estudos",
-    classes: ["Pesquisadores Kids", "Estudos Digitais"],
-    summary:
-      "Mostra como pesquisar, comparar fontes e usar vídeos educativos com segurança.",
-    badge: "Guia de estudos",
-    color: "bg-pink-100 text-pink-900",
-  },
-];
+type TeacherRow = Pick<
+  Database["public"]["Tables"]["teachers"]["Row"],
+  "id" | "area" | "bio"
+>;
 
-const guideStats = [
-  { label: "Professores", value: "3", icon: GraduationCap },
-  { label: "Turmas ativas", value: "6", icon: Users },
-  { label: "Área/matéria", value: "3", icon: BookOpen },
-  { label: "Guias verificados", value: "100%", icon: ShieldCheck },
-];
+export default async function ProfessoresPage() {
+  const { supabase, profile } = await getCurrentUserProfile();
 
-const guideFocus = [
-  {
-    title: "Tecnologia segura",
-    description: "Guias ensinam privacidade, senhas e sinais de alerta.",
-    icon: ShieldCheck,
-    color: "bg-emerald-100 text-emerald-900",
-  },
-  {
-    title: "Estudos com calma",
-    description: "Atividades curtas ajudam a criança a aprender no ritmo dela.",
-    icon: Lightbulb,
-    color: "bg-yellow-100 text-amber-950",
-  },
-  {
-    title: "Turmas acompanhadas",
-    description: "Cada guia acompanha grupos, missões e progresso.",
-    icon: School,
-    color: "bg-sky-100 text-sky-900",
-  },
-];
+  const teacherResult =
+    profile.role === "professor"
+      ? await supabase
+          .from("teachers")
+          .select("id, area, bio")
+          .eq("profile_id", profile.id)
+          .maybeSingle()
+      : { data: null, error: null };
 
-export default function ProfessoresPage() {
+  if (teacherResult.error) {
+    throw new Error("Não foi possível carregar seus dados de guia.");
+  }
+
+  const teacher = teacherResult.data as TeacherRow | null;
+  const classesResult = teacher
+    ? await supabase.from("classes").select("id").eq("teacher_id", teacher.id)
+    : { data: [], error: null };
+
+  if (classesResult.error) {
+    throw new Error("Não foi possível carregar turmas do guia.");
+  }
+
+  const guideStats = [
+    { label: "Meu perfil de guia", value: teacher ? "1" : "0", icon: GraduationCap },
+    {
+      label: "Turmas vinculadas",
+      value: String(classesResult.data?.length ?? 0),
+      icon: Users,
+    },
+    { label: "Área/matéria", value: teacher?.area ? "1" : "0", icon: BookOpen },
+    { label: "Guias vinculados", value: "0", icon: ShieldCheck },
+  ];
+
   return (
-    <LoggedLayout>
+    <LoggedLayout profile={profile}>
       <div className="space-y-6">
         <section className="kid-shadow rounded-[2rem] border-4 border-white bg-white/92 p-6 md:p-8">
           <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
@@ -90,7 +70,7 @@ export default function ProfessoresPage() {
               </h1>
               <p className="mt-3 max-w-3xl text-lg font-bold leading-relaxed text-slate-700">
                 Veja professores, área/matéria, turmas acompanhadas e um
-                perfil resumido de cada guia.
+                perfil resumido quando esses vínculos existirem no Supabase.
               </p>
             </div>
 
@@ -103,12 +83,6 @@ export default function ProfessoresPage() {
               </p>
             </div>
           </div>
-        </section>
-
-        <section className="rounded-[1.4rem] border-4 border-dashed border-violet-200 bg-violet-50 p-5 font-bold text-violet-950">
-          Conteúdo de exemplo: esta área ainda não mostra guias reais da sua
-          conta. Quando houver dados no Supabase, eles substituirão estes
-          exemplos.
         </section>
 
         <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
@@ -143,9 +117,24 @@ export default function ProfessoresPage() {
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
-              {guideFocus.map((item) => (
-                <FocusCard key={item.title} {...item} />
-              ))}
+              <FocusCard
+                title="Tecnologia segura"
+                description="Guias ensinam privacidade, senhas e sinais de alerta."
+                icon={ShieldCheck}
+                color="bg-emerald-100 text-emerald-900"
+              />
+              <FocusCard
+                title="Estudos com calma"
+                description="Atividades curtas ajudam a criança a aprender no ritmo dela."
+                icon={Lightbulb}
+                color="bg-yellow-100 text-amber-950"
+              />
+              <FocusCard
+                title="Turmas acompanhadas"
+                description="Os vínculos reais aparecerão quando houver turmas cadastradas."
+                icon={School}
+                color="bg-sky-100 text-sky-900"
+              />
             </div>
           </div>
         </section>
@@ -160,20 +149,43 @@ export default function ProfessoresPage() {
                 Meus guias da plataforma
               </h2>
               <p className="mt-2 max-w-3xl font-bold leading-relaxed text-slate-700">
-                Cada guia tem uma área/matéria, turmas vinculadas e um resumo
-                para a família e a criança conhecerem melhor.
+                Esta área exibirá guias vinculados à criança ou às turmas reais.
               </p>
             </div>
             <div className="rounded-2xl bg-emerald-100 px-5 py-4 text-sm font-black text-emerald-900">
-              Todos os guias são apresentados de forma segura
+              Todos os guias serão apresentados de forma segura
             </div>
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-3">
-            {teachers.map((teacher) => (
-              <TeacherCard key={teacher.name} teacher={teacher} />
-            ))}
-          </div>
+          {teacher ? (
+            <article className="rounded-[1.6rem] border-4 border-white bg-slate-50 p-5 shadow-sm">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="grid size-16 place-items-center rounded-full bg-white text-3xl">
+                    <GraduationCap aria-hidden="true" className="text-violet-700" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-950">
+                      Meu perfil de guia
+                    </h3>
+                    <p className="font-bold text-slate-600">
+                      Área/matéria: {teacher.area}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="rounded-2xl bg-white px-4 py-3 text-sm font-bold leading-relaxed text-slate-700">
+                Perfil resumido: {teacher.bio || "Sem resumo cadastrado ainda."}
+              </p>
+            </article>
+          ) : (
+            <EmptyPanel
+              title="Área de professores em preparação."
+              description="Nenhum guia real está vinculado à sua conta ainda."
+              icon={GraduationCap}
+            />
+          )}
         </section>
       </div>
     </LoggedLayout>
@@ -213,57 +225,22 @@ function FocusCard({ title, description, icon: Icon, color }: FocusCardProps) {
   );
 }
 
-type Teacher = (typeof teachers)[number];
-
-function TeacherCard({ teacher }: { teacher: Teacher }) {
+function EmptyPanel({
+  title,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+}) {
   return (
-    <article className="rounded-[1.6rem] border-4 border-white bg-slate-50 p-5 shadow-sm">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="grid size-16 place-items-center rounded-full bg-white text-3xl">
-            {teacher.avatar}
-          </div>
-          <div>
-            <h3 className="text-xl font-black text-slate-950">
-              {teacher.name}
-            </h3>
-            <p className="font-bold text-slate-600">
-              Área/matéria: {teacher.area}
-            </p>
-          </div>
-        </div>
-        <span
-          className={`rounded-full px-3 py-2 text-xs font-black ${teacher.color}`}
-        >
-          {teacher.badge}
-        </span>
-      </div>
-
-      <p className="rounded-2xl bg-white px-4 py-3 text-sm font-bold leading-relaxed text-slate-700">
-        Perfil resumido: {teacher.summary}
+    <div className="rounded-[1.5rem] bg-slate-50 p-5">
+      <Icon aria-hidden="true" className="mb-3 text-violet-700" />
+      <h3 className="text-2xl font-black text-slate-950">{title}</h3>
+      <p className="mt-2 font-bold leading-relaxed text-slate-700">
+        {description}
       </p>
-
-      <div className="mt-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-black uppercase tracking-[0.12em] text-violet-700">
-          <Users aria-hidden="true" size={16} />
-          Turmas
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {teacher.classes.map((classroom) => (
-            <span
-              key={classroom}
-              className="rounded-full bg-yellow-100 px-3 py-2 text-xs font-black text-amber-950"
-            >
-              {classroom}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <button className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-violet-500 px-4 py-3 font-black text-white transition hover:bg-violet-600">
-        <Mail aria-hidden="true" size={19} />
-        Ver perfil resumido
-      </button>
-    </article>
+    </div>
   );
 }
